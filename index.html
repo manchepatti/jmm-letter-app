@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Mobile & PWA -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#68c751">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="JMM Letters">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <title>Jamatul Muslimeen Manche – Letter Maker</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app-container">
+
+    <!-- ================= DASHBOARD VIEW ================= -->
+    <div id="dashboardView" class="dashboard-container no-print">
+        <div class="dashboard-header">
+            <h1>Letter Maker Dashboard</h1>
+            <button id="openSettingsBtn">⚙️ Settings & Members</button>
+        </div>
+
+        <div class="dashboard-content">
+
+            <!-- LEFT : CONTROLS -->
+            <div class="control-panel">
+                <h2>1. Letter Details</h2>
+
+                <div class="control-group">
+                    <label>Letter Version (Branch):</label>
+                    <div style="display:flex; gap:10px;">
+                        <label><input type="radio" name="footerVersion" value="default" checked> Manche</label>
+                        <label><input type="radio" name="footerVersion" value="mumbai"> Mumbai</label>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>Ref No:</label>
+                    <input type="text" id="refInput">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="printRefCheck"> Include Ref No in Print
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label>Date:</label>
+                    <input type="date" id="dateInput">
+                </div>
+
+                <div class="control-group">
+                    <label>To Address:</label>
+                    <textarea id="toInput" rows="3"></textarea>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="printToCheck"> Include To in Print
+                    </label>
+                </div>
+
+                <div class="control-group">
+                    <label>Letter Body:</label>
+                    <textarea id="bodyInput" rows="6"></textarea>
+                </div>
+
+                <div class="control-group">
+                    <h3>Print Options</h3>
+                    <label class="checkbox-label"><input type="checkbox" id="printGreetingCheck"> Islamic Greeting</label>
+                    <label class="checkbox-label"><input type="checkbox" id="printHindiNameCheck" checked> Hindi Organization Name</label>
+                    <label class="checkbox-label"><input type="checkbox" id="printSadarGreetingCheck"> Sadar Greeting</label>
+                </div>
+
+                <div class="control-group">
+                    <h3>Translation</h3>
+                    <div style="display:flex; gap:5px;">
+                        <select id="targetLangSelect">
+                            <option value="mr">Marathi</option>
+                            <option value="hi">Hindi</option>
+                            <option value="en">English</option>
+                        </select>
+                        <button id="translateBtn">🌐 Translate</button>
+                    </div>
+                </div>
+
+                <button id="generatePreviewBtn" class="primary-action-btn">
+                    📄 Generate Preview
+                </button>
+            </div>
+
+            <!-- RIGHT : HISTORY -->
+            <div class="history-panel">
+                <div class="history-header">
+                    <h2>2. Letter History</h2>
+                    <button id="refreshHistoryBtn">🔄 Refresh</button>
+                </div>
+                <div id="historyList" class="history-list">
+                    <div style="text-align:center; color:#888; padding:20px;">
+                        Set Google Script URL to load history.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ================= PREVIEW VIEW ================= -->
+    <div id="previewView" class="preview-container hidden-view">
+        <div class="preview-toolbar no-print">
+            <button id="backToDashboardBtn">← Back</button>
+            <h2>Print Preview</h2>
+            <div>
+                <button id="saveLetterBtn">💾 Save</button>
+                <button onclick="window.print()">🖨️ Print / PDF</button>
+            </div>
+        </div>
+
+        <div class="letter-scroll-area">
+            <div class="letter-page" id="letterPage">
+
+                <!-- HEADER -->
+                <header class="letter-header">
+                    <div class="header-line urdu" id="headerLine1">جماعت المسلمین مانچے</div>
+                    <div class="header-line hindi" id="headerLine2">जमातुल मुस्लिमीन मणचे</div>
+                    <div class="header-line english" id="headerLine3">Jamatul Muslimeen Manche</div>
+                    <div class="header-line reg" id="headerLine4">Reg No. F-3495/10/08/10</div>
+                    <div class="header-line address" id="headerLine5">
+                        मुक्काम पोस्ट मणचे, मुस्लिमीन वाडी, तालुका देवगड, जिल्हा सिंधुदुर्ग, महाराष्ट्र.
+                    </div>
+                </header>
+
+                <!-- META -->
+                <div class="letter-meta">
+                    <div id="refDisplay" class="hidden-print">
+                        <strong>Ref:</strong> <span id="refText"></span>
+                    </div>
+                    <div class="date-section">
+                        <strong>Date:</strong> <span id="dateText"></span>
+                    </div>
+                </div>
+
+                <!-- TO -->
+                <div class="letter-to hidden-print" id="toDisplay">
+                    <strong>To,</strong><br>
+                    <div id="toText"></div>
+                </div>
+
+                <!-- GREETINGS -->
+                <div class="letter-greeting hidden-print" id="greetingDisplay">
+                    अस्सलामुअलयकुम रहीमतुल्ला ही बरकात हु
+                </div>
+
+                <div class="letter-greeting-sub hidden-print" id="greetingSubLine">
+                    जमातुल मुस्लिमीन मणचे
+                </div>
+
+                <div class="letter-greeting-sub hidden-print" id="sadarGreetingLine">
+                    सदर साहब और पनच कमेटी जमातुल मुस्लिमीन मणचे को सलाम दुआएँ
+                </div>
+
+                <!-- BODY -->
+                <div class="letter-body" id="letterBody"></div>
+
+                <!-- FOOTER -->
+                <footer class="letter-footer">
+                    <div class="committee-grid" id="committeeGrid"></div>
+                    <div class="footer-bar" id="footerBar">
+                        PERMANENT ADDRESS: AT POST MANCHE, TALUKA DEVGAD, DISTRICT SINDHUDURG, PIN - 416811.
+                    </div>
+                </footer>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ================= SETTINGS MODAL ================= -->
+<div id="settingsModal" class="modal no-print">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>Letterhead Settings</h3>
+
+        <div class="settings-section">
+            <input id="settingH1" placeholder="Urdu Line">
+            <input id="settingH2" placeholder="Hindi Line">
+            <input id="settingH3" placeholder="English Line">
+            <input id="settingH4" placeholder="Reg No">
+            <input id="settingH5" placeholder="Address">
+        </div>
+
+        <div class="settings-section">
+            <div id="committeeSettings"></div>
+            <input id="settingFooterAddr" placeholder="Footer Address">
+        </div>
+
+        <button id="saveSettingsBtn">Save Settings</button>
+    </div>
+</div>
+
+<!-- APP LOGIC -->
+<script src="script.js"></script>
+
+<!-- SERVICE WORKER -->
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./service-worker.js")
+      .then(reg => console.log("Service Worker Registered"))
+      .catch(err => console.error("SW Error", err));
+  });
+}
+</script>
+
+</body>
+</html>
