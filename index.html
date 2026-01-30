@@ -8,9 +8,10 @@
 
   <title>JMM Letter App</title>
 
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+Devanagari&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -42,43 +43,72 @@
     </div>
 
     <div class="control-panel">
+
+      <!-- Letter Version -->
       <div class="control-group">
-        <label>Ref No</label>
-        <input id="refInput">
+        <label>Letter Version (Branch)</label>
+        <label><input type="radio" name="footerVersion" value="default" checked> Manche (Default)</label>
+        <label><input type="radio" name="footerVersion" value="mumbai"> Mumbai</label>
       </div>
 
+      <!-- Ref -->
+      <div class="control-group">
+        <label>Ref No</label>
+        <input id="refInput" placeholder="JMM-001">
+        <label class="checkbox-label">
+          <input type="checkbox" id="printRefCheck"> Include Ref No in Print
+        </label>
+      </div>
+
+      <!-- Date -->
       <div class="control-group">
         <label>Date</label>
         <input type="date" id="dateInput">
       </div>
 
+      <!-- To -->
       <div class="control-group">
-        <label>To</label>
-        <textarea id="toInput"></textarea>
+        <label>To Address</label>
+        <textarea id="toInput" rows="3" placeholder="To address..."></textarea>
+        <label class="checkbox-label">
+          <input type="checkbox" id="printToCheck"> Include ‘To’ in Print
+        </label>
       </div>
 
+      <!-- Body -->
       <div class="control-group">
         <label>Letter Body</label>
-        <textarea id="bodyInput"></textarea>
+        <textarea id="bodyInput" rows="6" placeholder="Type main content here..."></textarea>
+      </div>
+
+      <!-- Print Options -->
+      <div class="control-group">
+        <h3>Print Options</h3>
+        <label class="checkbox-label">
+          <input type="checkbox" id="printGreetingCheck"> Islamic Greeting
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="printHindiNameCheck" checked> Hindi Organization Name
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="printSadarGreetingCheck"> Sadar Greeting
+        </label>
+      </div>
+
+      <!-- Translation -->
+      <div class="control-group">
+        <h3>Translation</h3>
+        <select id="targetLangSelect">
+          <option value="mr">Marathi</option>
+          <option value="hi">Hindi</option>
+          <option value="en">English</option>
+        </select>
+        <button id="translateBtn">🌐 Translate Body & To</button>
       </div>
 
       <button id="generatePreviewBtn" class="primary-action-btn">
         📄 Generate Preview
       </button>
-    </div>
-  </div>
-
-  <!-- ================= SETTINGS ================= -->
-  <div id="settingsView" class="view-page hidden-view">
-    <div class="dashboard-header">
-      <h1>Settings</h1>
-    </div>
-
-    <div class="control-panel">
-      <input placeholder="Header Line 1">
-      <input placeholder="Header Line 2">
-      <input placeholder="Header Line 3">
-      <button class="primary-action-btn">Save Settings</button>
     </div>
   </div>
 
@@ -88,18 +118,71 @@
       <button id="backToCreateBtn">← Back</button>
       <h1>Preview</h1>
     </div>
-    <div class="letter-body" id="letterBody"></div>
+
+    <div class="letter-scroll-area">
+      <div class="letter-page">
+
+        <!-- HEADER -->
+        <div class="letter-header">
+          <div class="header-line urdu">جماعت المسلمین مانچے</div>
+          <div class="header-line hindi">जमातुल मुस्लिमीन मणचे</div>
+          <div class="header-line english">Jamatul Muslimeen Manche</div>
+          <div class="header-line reg">Reg No. F-3495/10/08/10</div>
+          <div class="header-line address">
+            मुक्काम पोस्ट मणचे, मुस्लिमीन वाडी, तालुका देवगड, जिल्हा सिंधुदुर्ग, महाराष्ट्र.
+          </div>
+        </div>
+
+        <!-- META -->
+        <div class="letter-meta">
+          <div id="refDisplay" class="hidden-print">
+            <strong>Ref:</strong> <span id="refText"></span>
+          </div>
+          <div class="date-section">
+            <strong>Date:</strong> <span id="dateText"></span>
+          </div>
+        </div>
+
+        <!-- TO -->
+        <div id="toDisplay" class="letter-to hidden-print">
+          <strong>To,</strong>
+          <div id="toText"></div>
+        </div>
+
+        <!-- GREETINGS -->
+        <div id="greetingDisplay" class="letter-greeting hidden-print">
+          अस्सलामुअलयकुम रहीमतुल्ला ही बरकात हु
+        </div>
+
+        <div id="greetingSubLine" class="letter-greeting-sub hidden-print">
+          जमातुल मुस्लिमीन मणचे
+        </div>
+
+        <div id="sadarGreetingLine" class="letter-greeting-sub hidden-print">
+          सदर साहब और पनच कमेटी जमातुल मुस्लिमीन मणचे को सलाम दुआएँ
+        </div>
+
+        <!-- BODY -->
+        <div id="letterBody" class="letter-body"></div>
+
+        <!-- FOOTER -->
+        <div class="footer-bar">
+          PERMANENT ADDRESS: AT POST MANCHE, TALUKA DEVGAD, DISTRICT SINDHUDURG, PIN - 416811.
+        </div>
+
+      </div>
+    </div>
   </div>
 
 </div>
 
-<!-- ================= BOTTOM NAV ================= -->
+<!-- ================= BOTTOM NAV (MOBILE) ================= -->
 <div class="bottom-nav">
   <button data-target="dashboardView" class="active">🏠<br>Dashboard</button>
   <button data-target="createLetterView">➕<br>New Letter</button>
-  <button data-target="settingsView">⚙️<br>Settings</button>
 </div>
 
+<!-- ================= SCRIPTS ================= -->
 <script src="script.js"></script>
 
 <script>
@@ -110,7 +193,6 @@
     btn.addEventListener('click', () => {
       pages.forEach(p => p.classList.add('hidden-view'));
       navButtons.forEach(b => b.classList.remove('active'));
-
       document.getElementById(btn.dataset.target).classList.remove('hidden-view');
       btn.classList.add('active');
     });
