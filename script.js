@@ -9,40 +9,26 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentRef = null;
   let currentRowIndex = null;
 
+  /* ================= FIXED LETTERHEAD ================= */
+
+  function loadLetterhead() {
+    el("h1").textContent = "جماعت المسلمین مانچے";
+    el("h2").textContent = "जमातुल मुस्लिमीन मणचे";
+    el("h3").textContent = "Jamatul Muslimeen Manche";
+    el("h4").textContent = "Reg No. F-3495/10/08/10";
+    el("h5").textContent =
+      "मुक्काम पोस्ट मणचे, मुस्लिमीन वाडी,\nतालुका देवगड, जिल्हा सिंधुदुर्ग,\nमहाराष्ट्र.";
+    el("footerBar").textContent =
+      "मुक्काम पोस्ट मणचे, मुस्लिमीन वाडी, तालुका देवगड, जिल्हा सिंधुदुर्ग, महाराष्ट्र.";
+  }
+
   /* ================= INITIAL PAGE ================= */
   show("dashboardView");
+  loadLetterhead();
 
   /* ================= DATE ================= */
   const today = () => new Date().toISOString().split("T")[0];
   el("dateInput").value = today();
-
-  /* ================= LETTERHEAD ================= */
-  function loadLetterhead() {
-    const s = JSON.parse(localStorage.getItem("jmmSettings")) || {};
-
-    el("h1").textContent = s.h1 || "";
-    el("h2").textContent = s.h2 || "";
-    el("h3").textContent = s.h3 || "";
-    el("h4").textContent = s.h4 || "";
-    el("h5").textContent = s.h5 || "";
-    el("footerBar").textContent = s.footer || "";
-  }
-  loadLetterhead();
-
-  /* ================= SETTINGS SAVE ================= */
-  el("saveSettingsBtn").onclick = () => {
-    const settings = {
-      h1: el("settingH1").value,
-      h2: el("settingH2").value,
-      h3: el("settingH3").value,
-      h4: el("settingH4").value,
-      h5: el("settingH5").value,
-      footer: el("settingFooterAddr").value
-    };
-    localStorage.setItem("jmmSettings", JSON.stringify(settings));
-    alert("Settings saved");
-    loadLetterhead();
-  };
 
   /* ================= NAVIGATION ================= */
   document.querySelectorAll(".bottom-nav button").forEach(btn => {
@@ -93,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
   el("generatePreviewBtn").onclick = async () => {
     if (!currentRef) await peekRef();
 
-    loadLetterhead(); // 🔑 FIX
+    loadLetterhead(); // ALWAYS apply fixed letterhead
 
     el("refText").textContent = currentRef || "";
     el("dateText").textContent = formatDate(el("dateInput").value);
@@ -149,6 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
         list.reverse().forEach(l => {
           const card = document.createElement("div");
           card.className = "history-item";
+
           card.innerHTML = `
             <div class="history-info">
               <b>${l.ref}</b><br>
@@ -181,6 +168,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= EDIT ================= */
   function loadForEdit(l) {
     const d = JSON.parse(l.raw || "{}");
+
     mode = "edit";
     currentRef = l.ref;
     currentRowIndex = l.rowIndex;
