@@ -5,30 +5,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const el = id => document.getElementById(id);
 
-  let mode = "new";          // new | edit
+  let mode = "new";
   let currentRef = null;
   let currentRowIndex = null;
 
   /* ---------------- DATE ---------------- */
-
   const today = () => new Date().toISOString().split("T")[0];
   el("dateInput").value = today();
 
-  /* ---------------- NAV ---------------- */
-
-document.querySelectorAll(".bottom-nav button").forEach(b => {
-  b.onclick = () => {
-    show(b.dataset.target);
-
-    // 🔑 THIS WAS MISSING
-    if (b.dataset.target === "createLetterView" && mode === "new") {
-      peekRef();
-    }
-  };
-});
-
-  /* ---------------- PEEK REF (FIXED) ---------------- */
-
+  /* ---------------- FORCE REF FETCH ---------------- */
   async function peekRef() {
     try {
       const res = await fetch(URL, {
@@ -38,32 +23,41 @@ document.querySelectorAll(".bottom-nav button").forEach(b => {
       });
 
       const data = await res.json();
+
       if (!data || !data.nextRef) throw "bad";
 
       currentRef = data.nextRef;
-
       el("refInput").value = currentRef;
       el("refHelpText").textContent =
         `This letter will be saved with Ref No: ${currentRef}`;
 
-    } catch {
+    } catch (e) {
       currentRef = null;
       el("refInput").value = "";
-      el("refHelpText").textContent =
-        "Ref No will be generated on save";
+      el("refHelpText").textContent = "Ref No will be generated on save";
     }
   }
 
+  /* ---------------- NAV (FINAL) ---------------- */
+  document.querySelectorAll(".bottom-nav button").forEach(b => {
+    b.onclick = () => {
+
+      show(b.dataset.target);
+
+      // 🔴 ALWAYS fetch ref when Create Letter opens
+      if (b.dataset.target === "createLetterView") {
+        mode = "new";
+        currentRowIndex = null;
+        peekRef();
+      }
+    };
+  });
+
   /* ---------------- PREVIEW ---------------- */
-
   el("generatePreviewBtn").onclick = async () => {
-    if (mode === "new") await peekRef();
+    if (!currentRef) await peekRef();
 
-    el("refText").textContent =
-      mode === "edit"
-        ? currentRef
-        : (currentRef || "Will be generated on save");
-
+    el("refText").textContent = currentRef || "Will be generated on save";
     el("dateText").textContent = formatDate(el("dateInput").value);
     el("toText").textContent = el("toInput").value;
     el("letterBody").textContent = el("bodyInput").value;
@@ -74,7 +68,6 @@ document.querySelectorAll(".bottom-nav button").forEach(b => {
   el("editLetterBtn").onclick = () => show("createLetterView");
 
   /* ---------------- SAVE ---------------- */
-
   el("saveLetterBtn").onclick = async () => {
 
     if (!el("subjectInput").value.trim()) {
@@ -91,10 +84,8 @@ document.querySelectorAll(".bottom-nav button").forEach(b => {
           data: collectData()
         })
       });
-
       const j = await r.json();
       alert(`Saved as ${j.ref}`);
-
     } else {
       await fetch(URL, {
         method: "POST",
@@ -105,7 +96,6 @@ document.querySelectorAll(".bottom-nav button").forEach(b => {
           data: collectData()
         })
       });
-
       alert(`Updated ${currentRef}`);
     }
 
@@ -115,7 +105,6 @@ document.querySelectorAll(".bottom-nav button").forEach(b => {
   };
 
   /* ---------------- HISTORY ---------------- */
-
   function fetchHistory() {
     fetch(URL)
       .then(r => r.json())
@@ -137,18 +126,9 @@ document.querySelectorAll(".bottom-nav button").forEach(b => {
             </div>
           `;
 
-          d.querySelector(".edit-btn").onclick = e => {
-            e.stopPropagation();
-            loadForEdit(l);
-          };
-
-          d.querySelector(".dup-btn").onclick = e => {
-            e.stopPropagation();
-            loadForDuplicate(l);
-          };
-
-          d.querySelector(".del-btn").onclick = e => {
-            e.stopPropagation();
+          d.querySelector(".edit-btn").onclick = () => loadForEdit(l);
+          d.querySelector(".dup-btn").onclick = () => loadForDuplicate(l);
+          d.querySelector(".del-btn").onclick = () => {
             if (confirm(`Delete ${l.ref}?`)) deleteLetter(l.rowIndex);
           };
 
@@ -159,7 +139,6 @@ document.querySelectorAll(".bottom-nav button").forEach(b => {
   fetchHistory();
 
   /* ---------------- EDIT / DUPLICATE ---------------- */
-
   function loadForEdit(l) {
     const d = JSON.parse(l.raw || "{}");
 
@@ -195,10 +174,10 @@ document.querySelectorAll(".bottom-nav button").forEach(b => {
     el("bodyInput").value = d.content || "";
 
     show("createLetterView");
+    peekRef();
   }
 
   /* ---------------- DELETE ---------------- */
-
   function deleteLetter(rowIndex) {
     fetch(URL, {
       method: "POST",
@@ -208,7 +187,6 @@ document.querySelectorAll(".bottom-nav button").forEach(b => {
   }
 
   /* ---------------- HELPERS ---------------- */
-
   function collectData() {
     return {
       date: el("dateInput").value,
