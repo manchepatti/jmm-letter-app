@@ -1,345 +1,82 @@
-:root {
-  --bg-color: #f0f0f0;
-  --paper-color: #ffffff;
-  --header-green: #68c751;
-  --text-color: #000;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 body {
-  font-family: 'Noto Sans', Arial, sans-serif;
   margin: 0;
-  background: var(--bg-color);
-  height: 100vh;
-  overflow: hidden;
-}
-
-.app-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-/* ================= DASHBOARD ================= */
-
-.dashboard-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
-.dashboard-header {
-  background: #333;
-  color: white;
-  padding: 14px 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.dashboard-header h1 {
-  font-size: 1.1rem;
-  margin: 0;
-}
-
-.dashboard-header .header-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.dashboard-header button {
-  background: #555;
-  border: none;
-  color: white;
-  padding: 7px 10px;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.dashboard-content {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
-
-/* LEFT */
-.control-panel {
-  width: 400px;
-  background: white;
-  padding: 20px;
-  overflow-y: auto;
-  border-right: 1px solid #ddd;
-}
-
-/* RIGHT */
-.history-panel {
-  flex: 1;
-  background: #f9f9f9;
-  padding: 20px;
-  overflow-y: auto;
-}
-
-.primary-action-btn {
-  width: 100%;
-  padding: 15px;
-  font-size: 1.1rem;
-  background: var(--header-green);
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-/* ================= FORMS ================= */
-
-.control-group {
-  margin-bottom: 15px;
-}
-
-.control-group label {
-  font-weight: bold;
-  font-size: 0.9rem;
-}
-
-.control-group input,
-.control-group textarea,
-.control-group select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 6px;
-}
-
-.checkbox-label {
-  display: flex;
-  gap: 8px;
-  margin-top: 6px;
-  font-weight: normal;
-}
-
-/* ================= PREVIEW ================= */
-
-.preview-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: #555;
+  font-family: 'Noto Sans', sans-serif;
+  background: #f0f0f0;
 }
 
 .hidden-view {
   display: none !important;
 }
 
-.preview-toolbar {
+.view-page {
+  min-height: 100vh;
+  padding-bottom: 70px;
+}
+
+.dashboard-header {
   background: #333;
   color: white;
-  padding: 10px 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 15px;
+  text-align: center;
 }
 
-.preview-toolbar button {
-  background: var(--header-green);
-  color: white;
+.control-panel {
+  padding: 15px;
+}
+
+.control-group {
+  margin-bottom: 12px;
+}
+
+.control-group input,
+.control-group textarea {
+  width: 100%;
+  padding: 8px;
+}
+
+.primary-action-btn {
+  width: 100%;
+  padding: 14px;
+  background: #68c751;
   border: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  cursor: pointer;
+  color: white;
+  font-size: 1.1rem;
 }
 
-.letter-scroll-area {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  justify-content: center;
-  padding: 40px;
+.history-panel {
+  padding: 15px;
 }
 
-.letter-page {
-  width: 210mm;
-  min-height: 297mm;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 0 15px rgba(0,0,0,0.25);
-}
+/* ================= BOTTOM NAV ================= */
 
-/* ================= LETTER ================= */
-
-.letter-header {
-  background: var(--header-green);
-  text-align: center;
-  padding: 20px;
-}
-
-.header-line.urdu {
-  font-family: 'Noto Nastaliq Urdu';
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.header-line.hindi {
-  font-family: 'Noto Sans Devanagari';
-  font-size: 24px;
-  font-weight: bold;
-}
-
-.header-line.english {
-  font-size: 22px;
-  font-weight: bold;
-}
-
-.header-line.reg,
-.header-line.address {
-  font-size: 14px;
-}
-
-.letter-meta,
-.letter-to,
-.letter-body {
-  padding: 10px 40px;
-}
-
-.letter-body {
-  flex: 1;
-  font-size: 16px;
-  line-height: 1.6;
-}
-
-.committee-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  padding: 10px;
-  text-align: center;
-}
-
-.footer-bar {
-  background: var(--header-green);
-  padding: 10px;
-  text-align: center;
-  font-size: 12px;
-  font-weight: bold;
-}
-
-.hidden-print {
-  display: none !important;
-}
-
-/* ================= MODAL ================= */
-
-.modal {
-  display: none;
+.bottom-nav {
   position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 3000;
-}
-
-.modal-content {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 65px;
+  display: flex;
   background: white;
-  margin: 5% auto;
-  width: 90%;
-  max-width: 600px;
-  padding: 20px;
-  border-radius: 8px;
+  border-top: 1px solid #ccc;
+  z-index: 5000;
 }
 
-/* ================= MOBILE UX ================= */
+.bottom-nav button {
+  flex: 1;
+  border: none;
+  background: none;
+  font-size: 0.85rem;
+}
 
-@media (max-width: 768px) {
+.bottom-nav button.active {
+  color: #68c751;
+  font-weight: bold;
+}
 
-  body {
-    overflow-y: auto;
-  }
+/* ================= DESKTOP ================= */
 
-  /* DESKTOP STYLE DISABLED */
-  .dashboard-content {
-    flex-direction: column;
-  }
-
-  /* HISTORY = SEPARATE PAGE */
-  .history-panel {
+@media (min-width: 769px) {
+  .bottom-nav {
     display: none;
-  }
-
-  .history-panel.mobile-show {
-    display: block;
-    position: fixed;
-    inset: 0;
-    z-index: 2000;
-    background: #f9f9f9;
-    padding: 15px;
-  }
-
-  /* Dashboard full page */
-  .control-panel {
-    width: 100%;
-    border-right: none;
-  }
-
-  /* Sticky Preview Button */
-  .primary-action-btn {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    border-radius: 0;
-    z-index: 1500;
-    padding: 16px;
-  }
-
-  .dashboard-content {
-    padding-bottom: 80px;
-  }
-
-  /* Preview full screen */
-  .preview-container {
-    position: fixed;
-    inset: 0;
-    z-index: 2500;
-  }
-
-  .letter-scroll-area {
-    padding: 10px;
-  }
-
-  .letter-page {
-    transform: scale(0.85);
-    transform-origin: top center;
-  }
-
-  .committee-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* ================= PRINT ================= */
-
-@media print {
-  body {
-    background: none;
-    overflow: visible;
-  }
-
-  .dashboard-container,
-  .preview-toolbar,
-  .modal {
-    display: none !important;
-  }
-
-  .preview-container {
-    display: block !important;
-    position: static;
-    background: none;
-  }
-
-  .letter-page {
-    transform: none !important;
-    box-shadow: none;
-    width: 100%;
   }
 }
