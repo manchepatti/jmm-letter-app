@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#68c751">
   <link rel="manifest" href="manifest.json">
 
-  <title>JMM Letter Maker</title>
+  <title>JMM Letter App</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,10 +19,26 @@
 
 <div class="app-container">
 
-  <!-- ================= DASHBOARD ================= -->
+  <!-- ================= DASHBOARD (HISTORY) ================= -->
   <div id="dashboardView" class="view-page">
     <div class="dashboard-header">
       <h1>Dashboard</h1>
+    </div>
+
+    <div class="control-panel">
+      <button id="newLetterBtn" class="primary-action-btn">
+        ➕ Create New Letter
+      </button>
+
+      <h3 style="margin-top:20px;">Recent Letters</h3>
+      <div id="historyList" class="history-panel"></div>
+    </div>
+  </div>
+
+  <!-- ================= CREATE NEW LETTER ================= -->
+  <div id="createLetterView" class="view-page hidden-view">
+    <div class="dashboard-header">
+      <h1>Create New Letter</h1>
     </div>
 
     <div class="control-panel">
@@ -52,16 +68,8 @@
     </div>
   </div>
 
-  <!-- ================= HISTORY ================= -->
-  <div id="historyMobileView" class="view-page hidden-view">
-    <div class="dashboard-header">
-      <h1>History</h1>
-    </div>
-    <div id="historyList" class="history-panel"></div>
-  </div>
-
   <!-- ================= SETTINGS ================= -->
-  <div id="settingsMobileView" class="view-page hidden-view">
+  <div id="settingsView" class="view-page hidden-view">
     <div class="dashboard-header">
       <h1>Settings</h1>
     </div>
@@ -77,7 +85,7 @@
   <!-- ================= PREVIEW ================= -->
   <div id="previewView" class="view-page hidden-view">
     <div class="dashboard-header">
-      <button id="backToDashboardBtn">← Back</button>
+      <button id="backToCreateBtn">← Back</button>
       <h1>Preview</h1>
     </div>
     <div class="letter-body" id="letterBody"></div>
@@ -87,9 +95,9 @@
 
 <!-- ================= BOTTOM NAV ================= -->
 <div class="bottom-nav">
-  <button data-target="dashboardView" class="active">✍️<br>Dashboard</button>
-  <button data-target="historyMobileView">📜<br>History</button>
-  <button data-target="settingsMobileView">⚙️<br>Settings</button>
+  <button data-target="dashboardView" class="active">🏠<br>Dashboard</button>
+  <button data-target="createLetterView">➕<br>New Letter</button>
+  <button data-target="settingsView">⚙️<br>Settings</button>
 </div>
 
 <script src="script.js"></script>
