@@ -8,12 +8,15 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= HELPERS ================= */
 
   const el = id => document.getElementById(id);
-  const $$ = sel => document.querySelector(sel);
 
   function showView(viewId) {
     document.querySelectorAll(".view-page")
       .forEach(v => v.classList.add("hidden-view"));
-    el(viewId).classList.remove("hidden-view");
+
+    const view = el(viewId);
+    if (!view) return;
+
+    view.classList.remove("hidden-view");
 
     document.querySelectorAll(".bottom-nav button")
       .forEach(b => b.classList.remove("active"));
@@ -26,7 +29,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= ELEMENTS ================= */
 
-  const newLetterBtn = el("newLetterBtn");
   const generatePreviewBtn = el("generatePreviewBtn");
   const editLetterBtn = el("editLetterBtn");
   const saveLetterBtn = el("saveLetterBtn");
@@ -81,15 +83,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSettings();
   fetchHistory();
 
-  /* ================= DASHBOARD → CREATE ================= */
-
-  newLetterBtn.onclick = async () => {
-    clearForm();
-    await setNextRef();
-    showView("createLetterView");
-  };
-
-  /* ================= PREVIEW ================= */
+  /* ================= GENERATE PREVIEW (FIXED) ================= */
 
   generatePreviewBtn.onclick = () => {
     buildPreview();
@@ -146,40 +140,13 @@ document.addEventListener("DOMContentLoaded", () => {
     footerBar.textContent = s.footer;
   }
 
-  /* ================= AUTO REF ================= */
-
-  async function setNextRef() {
-    try {
-      const res = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "getNextRef" })
-      });
-      const data = await res.json();
-      if (data.nextRef) {
-        refInput.value = data.nextRef;
-        localStorage.setItem("lastRef", data.nextRef);
-        return;
-      }
-    } catch {}
-
-    const last = localStorage.getItem("lastRef") || "JMM-000";
-    const next = incrementRef(last);
-    refInput.value = next;
-    localStorage.setItem("lastRef", next);
-  }
-
-  function incrementRef(ref) {
-    const n = parseInt(ref.split("-")[1] || "0", 10) + 1;
-    return `JMM-${String(n).padStart(3, "0")}`;
-  }
-
   /* ================= PREVIEW BUILD ================= */
 
   function buildPreview() {
-    refText.textContent = refInput.value;
-    toText.textContent = toInput.value;
-    letterBody.textContent = bodyInput.value;
+    refText.textContent = refInput.value || "";
+    toText.textContent = toInput.value || "";
+    letterBody.textContent = bodyInput.value || "";
+
     updateDate(dateInput.value);
 
     toggle(refDisplay, printRefCheck.checked);
@@ -196,21 +163,19 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= SAVE LETTER ================= */
 
   saveLetterBtn.onclick = () => {
-    const payload = {
-      action: "save",
-      data: {
-        ref: refInput.value,
-        date: dateInput.value,
-        to: toInput.value,
-        body: bodyInput.value
-      }
-    };
-
     fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        action: "save",
+        data: {
+          ref: refInput.value,
+          date: dateInput.value,
+          to: toInput.value,
+          body: bodyInput.value
+        }
+      })
     }).then(() => {
       alert("Letter saved");
       fetchHistory();
@@ -229,7 +194,10 @@ document.addEventListener("DOMContentLoaded", () => {
       body: JSON.stringify({
         action: "translate",
         targetLang: targetLangSelect.value,
-        text: { body: bodyInput.value, to: toInput.value }
+        text: {
+          body: bodyInput.value,
+          to: toInput.value
+        }
       })
     })
       .then(r => r.json())
@@ -246,11 +214,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function fetchHistory() {
     historyList.innerHTML = "Loading…";
+
     fetch(GOOGLE_SCRIPT_URL)
       .then(r => r.json())
       .then(items => {
         historyList.innerHTML = "";
-        if (!items.length) {
+        if (!items || !items.length) {
           historyList.innerHTML = "No letters found";
           return;
         }
@@ -261,6 +230,9 @@ document.addEventListener("DOMContentLoaded", () => {
           d.onclick = () => loadLetter(l.content);
           historyList.appendChild(d);
         });
+      })
+      .catch(() => {
+        historyList.innerHTML = "Failed to load history";
       });
   }
 
@@ -287,11 +259,6 @@ document.addEventListener("DOMContentLoaded", () => {
       `${String(dt.getDate()).padStart(2, "0")}/` +
       `${String(dt.getMonth() + 1).padStart(2, "0")}/` +
       dt.getFullYear();
-  }
-
-  function clearForm() {
-    toInput.value = "";
-    bodyInput.value = "";
   }
 
 });
