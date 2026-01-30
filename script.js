@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   el("dateInput").value = today();
 
-  /* ================= SETTINGS (RESTORED) ================= */
+  /* ================= LETTERHEAD ================= */
 
   function loadSettings() {
     const s = JSON.parse(localStorage.getItem("jmmSettings")) || {};
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   });
 
-  /* ================= PREVIEW (FIXED) ================= */
+  /* ================= PREVIEW ================= */
 
   el("generatePreviewBtn").onclick = async () => {
     const ref = await peekRef();
@@ -60,6 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= SAVE ================= */
 
   el("saveLetterBtn").onclick = async () => {
+    if (!el("subjectInput").value.trim()) {
+      alert("Subject is required");
+      return;
+    }
+
     const res = await fetch(URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -71,18 +76,20 @@ document.addEventListener("DOMContentLoaded", () => {
           subject: el("subjectInput").value,
           address: el("toInput").value,
           content: el("bodyInput").value,
-          greetingIncluded: el("printGreetingCheck").checked
+          greetingIncluded: el("printGreetingCheck").checked,
+          rawState: collectState()
         }
       })
     });
 
     const r = await res.json();
     alert(`Saved as ${r.ref}`);
+    resetForm();
     fetchHistory();
     show("dashboardView");
   };
 
-  /* ================= HISTORY (FIXED) ================= */
+  /* ================= HISTORY ================= */
 
   function fetchHistory() {
     fetch(URL)
@@ -92,18 +99,85 @@ document.addEventListener("DOMContentLoaded", () => {
         h.innerHTML = "";
 
         list.reverse().forEach(l => {
-          const d = document.createElement("div");
-          d.className = "history-item";
-          d.innerHTML = `
+          const card = document.createElement("div");
+          card.className = "history-item";
+
+          card.innerHTML = `
             <b>${l.ref}</b><br>
             ${l.subject}<br>
             <small>${l.date}</small>
+            <div class="history-actions">
+              <button class="edit-btn">✏️</button>
+              <button class="dup-btn">📄</button>
+              <button class="del-btn">🗑</button>
+            </div>
           `;
-          h.appendChild(d);
+
+          card.querySelector(".edit-btn").onclick = e => {
+            e.stopPropagation();
+            editLetter(l.raw);
+          };
+
+          card.querySelector(".dup-btn").onclick = e => {
+            e.stopPropagation();
+            duplicateLetter(l.raw);
+          };
+
+          card.querySelector(".del-btn").onclick = e => {
+            e.stopPropagation();
+            if (!confirm(`Delete ${l.ref}?`)) return;
+            deleteLetter(l.rowIndex);
+          };
+
+          h.appendChild(card);
         });
       });
   }
   fetchHistory();
+
+  /* ================= EDIT ================= */
+
+  function editLetter(raw) {
+    const d = JSON.parse(raw);
+
+    el("subjectInput").value = d.subject || "";
+    el("toInput").value = d.address || "";
+    el("bodyInput").value = d.content || "";
+    el("targetLangSelect").value = d.language || "manual";
+    el("printGreetingCheck").checked = d.greetingIncluded || false;
+
+    show("createLetterView");
+  }
+
+  /* ================= DUPLICATE ================= */
+
+  function duplicateLetter(raw) {
+    const d = JSON.parse(raw);
+
+    el("subjectInput").value = d.subject + " (Copy)";
+    el("toInput").value = d.address || "";
+    el("bodyInput").value = d.content || "";
+    el("targetLangSelect").value = d.language || "manual";
+    el("printGreetingCheck").checked = d.greetingIncluded || false;
+
+    el("dateInput").value = today();
+    el("refInput").value = ""; // NEW ref on save
+
+    show("createLetterView");
+  }
+
+  /* ================= DELETE ================= */
+
+  function deleteLetter(rowIndex) {
+    fetch(URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "delete",
+        rowIndex
+      })
+    }).then(() => fetchHistory());
+  }
 
   /* ================= HELPERS ================= */
 
@@ -122,6 +196,24 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".view-page")
       .forEach(v => v.classList.add("hidden-view"));
     el(id).classList.remove("hidden-view");
+  }
+
+  function resetForm() {
+    el("subjectInput").value = "";
+    el("toInput").value = "";
+    el("bodyInput").value = "";
+    el("refInput").value = "";
+    el("dateInput").value = today();
+  }
+
+  function collectState() {
+    return {
+      subject: el("subjectInput").value,
+      address: el("toInput").value,
+      content: el("bodyInput").value,
+      language: el("targetLangSelect").value,
+      greetingIncluded: el("printGreetingCheck").checked
+    };
   }
 
   function formatDate(iso) {
