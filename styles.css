@@ -1,82 +1,39 @@
-body {
-  margin: 0;
-  font-family: 'Noto Sans', sans-serif;
-  background: #f0f0f0;
-}
-
-.hidden-view {
-  display: none !important;
-}
-
-.view-page {
-  min-height: 100vh;
-  padding-bottom: 70px;
-}
-
-.dashboard-header {
-  background: #333;
-  color: white;
-  padding: 15px;
-  text-align: center;
-}
-
-.control-panel {
-  padding: 15px;
-}
-
-.control-group {
-  margin-bottom: 12px;
-}
-
-.control-group input,
-.control-group textarea {
-  width: 100%;
-  padding: 8px;
-}
-
-.primary-action-btn {
-  width: 100%;
-  padding: 14px;
-  background: #68c751;
-  border: none;
-  color: white;
-  font-size: 1.1rem;
-}
-
-.history-panel {
-  padding: 15px;
-}
-
-/* ================= BOTTOM NAV ================= */
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 65px;
+.history-item {
   display: flex;
-  background: white;
-  border-top: 1px solid #ccc;
-  z-index: 5000;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  background: #f7f7f7;
 }
 
-.bottom-nav button {
+.history-info {
   flex: 1;
+  font-size: 14px;
+}
+
+.history-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.history-actions button {
   border: none;
-  background: none;
-  font-size: 0.85rem;
+  background: #fff;
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
-.bottom-nav button.active {
-  color: #68c751;
-  font-weight: bold;
+.history-actions button:active {
+  transform: scale(0.95);
 }
 
-/* ================= DESKTOP ================= */
-
-@media (min-width: 769px) {
-  .bottom-nav {
-    display: none;
+/* Mobile safety */
+@media (max-width: 480px) {
+  .history-actions {
+    gap: 6px;
   }
 }
