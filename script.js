@@ -16,15 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ---------------- NAV ---------------- */
 
-  document.querySelectorAll(".bottom-nav button").forEach(b => {
-    b.onclick = () => {
-      show(b.dataset.target);
+document.querySelectorAll(".bottom-nav button").forEach(b => {
+  b.onclick = () => {
+    show(b.dataset.target);
 
-      if (b.dataset.target === "createLetterView" && mode === "new") {
-        peekRef();
-      }
-    };
-  });
+    // 🔑 THIS WAS MISSING
+    if (b.dataset.target === "createLetterView" && mode === "new") {
+      peekRef();
+    }
+  };
+});
 
   /* ---------------- PEEK REF (FIXED) ---------------- */
 
