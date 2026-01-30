@@ -4,29 +4,10 @@ document.addEventListener("DOMContentLoaded", () => {
     "https://script.google.com/macros/s/AKfycbwGj5sUuVii6WYen7Gp6kER-8CbPBqp9yXK_q0th3i7vaqbvxUtbM3dyQszmHNZzSwSiw/exec";
 
   const el = id => document.getElementById(id);
+  let currentRef = null; // 🔥 SINGLE SOURCE
 
-  /* ---------- FORCE REF GENERATION ---------- */
-  async function ensureRef() {
-    if (el("refInput").value) return;
+  /* ================= BOTTOM NAV ================= */
 
-    try {
-      const r = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "getNextRef" })
-      });
-      const j = await r.json();
-      el("refInput").value = j.nextRef || "";
-    } catch {
-      const last = localStorage.getItem("lastRef") || "JMM-000";
-      const n = parseInt(last.split("-")[1]) + 1;
-      const next = `JMM-${String(n).padStart(3, "0")}`;
-      el("refInput").value = next;
-      localStorage.setItem("lastRef", next);
-    }
-  }
-
-  /* ---------- BOTTOM NAV ---------- */
   document.querySelectorAll(".bottom-nav button").forEach(btn => {
     btn.onclick = async () => {
       document.querySelectorAll(".view-page")
@@ -35,25 +16,46 @@ document.addEventListener("DOMContentLoaded", () => {
       el(btn.dataset.target).classList.remove("hidden-view");
 
       if (btn.dataset.target === "createLetterView") {
-        await ensureRef();     // 🔥 FIX
+        await startNewLetter();
       }
     };
   });
 
-  /* ---------- PREVIEW ---------- */
-  el("generatePreviewBtn").onclick = async () => {
-    await ensureRef();
+  /* ================= NEW LETTER ================= */
+
+  async function startNewLetter() {
+    if (currentRef) return; // already started
+
+    const r = await fetch(GOOGLE_SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "commitRef" }) // 🔥 ONLY HERE
+    });
+
+    const j = await r.json();
+    currentRef = j.nextRef;
+    el("refInput").value = currentRef;
+  }
+
+  /* ================= PREVIEW ================= */
+
+  el("generatePreviewBtn").onclick = () => {
     el("refText").textContent = el("refInput").value;
     el("toText").textContent = el("toInput").value;
     el("letterBody").textContent = el("bodyInput").value;
-    el("previewView").classList.remove("hidden-view");
+
     el("createLetterView").classList.add("hidden-view");
+    el("previewView").classList.remove("hidden-view");
   };
 
-  /* ---------- SAVE ---------- */
-  el("saveLetterBtn").onclick = async () => {
-    await ensureRef();
+  el("editLetterBtn").onclick = () => {
+    el("previewView").classList.add("hidden-view");
+    el("createLetterView").classList.remove("hidden-view");
+  };
 
+  /* ================= SAVE ================= */
+
+  el("saveLetterBtn").onclick = () => {
     fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
@@ -61,15 +63,17 @@ document.addEventListener("DOMContentLoaded", () => {
       body: JSON.stringify({
         action: "save",
         data: {
-          ref: el("refInput").value,     // SAME AS LETTER NO
-          letterNo: el("refInput").value,
+          ref: currentRef,
           date: el("dateInput").value,
           to: el("toInput").value,
           body: el("bodyInput").value,
           greetingIncluded: el("printGreetingCheck").checked
         }
       })
-    }).then(() => location.reload());
+    }).then(() => {
+      currentRef = null; // 🔥 reset only after save
+      location.reload();
+    });
   };
 
 });
