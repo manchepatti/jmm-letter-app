@@ -13,10 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".view-page")
       .forEach(v => v.classList.add("hidden-view"));
 
-    const view = el(viewId);
-    if (!view) return;
-
-    view.classList.remove("hidden-view");
+    el(viewId)?.classList.remove("hidden-view");
 
     document.querySelectorAll(".bottom-nav button")
       .forEach(b => b.classList.remove("active"));
@@ -25,6 +22,18 @@ document.addEventListener("DOMContentLoaded", () => {
       `.bottom-nav button[data-target="${viewId}"]`
     );
     if (navBtn) navBtn.classList.add("active");
+  }
+
+  function safeText(txt, max = 60) {
+    if (!txt) return "";
+    const clean = txt.replace(/\s+/g, " ").trim();
+    return clean.length > max ? clean.slice(0, max) + "…" : clean;
+  }
+
+  function extractSubject(body) {
+    if (!body) return "—";
+    const firstLine = body.split("\n")[0];
+    return safeText(firstLine, 50);
   }
 
   /* ================= ELEMENTS ================= */
@@ -83,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSettings();
   fetchHistory();
 
-  /* ================= GENERATE PREVIEW (FIXED) ================= */
+  /* ================= PREVIEW ================= */
 
   generatePreviewBtn.onclick = () => {
     buildPreview();
@@ -177,7 +186,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       })
     }).then(() => {
-      alert("Letter saved");
       fetchHistory();
       showView("dashboardView");
     });
@@ -210,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .finally(() => translateBtn.disabled = false);
   };
 
-  /* ================= HISTORY ================= */
+  /* ================= HISTORY (UPDATED UI) ================= */
 
   function fetchHistory() {
     historyList.innerHTML = "Loading…";
@@ -219,16 +227,27 @@ document.addEventListener("DOMContentLoaded", () => {
       .then(r => r.json())
       .then(items => {
         historyList.innerHTML = "";
+
         if (!items || !items.length) {
           historyList.innerHTML = "No letters found";
           return;
         }
-        items.forEach(l => {
-          const d = document.createElement("div");
-          d.className = "history-item";
-          d.innerHTML = `<b>${l.ref}</b><br><small>${l.date}</small>`;
-          d.onclick = () => loadLetter(l.content);
-          historyList.appendChild(d);
+
+        items.reverse().forEach(l => {
+          const div = document.createElement("div");
+          div.className = "history-item";
+
+          const toLine = safeText(l.to, 40);
+          const subjectLine = extractSubject(l.body);
+
+          div.innerHTML = `
+            <div class="history-ref"><b>${l.ref}</b></div>
+            <div class="history-to">To: ${toLine || "—"}</div>
+            <div class="history-subject">Subject: ${subjectLine}</div>
+          `;
+
+          div.onclick = () => loadLetter(l.content);
+          historyList.appendChild(div);
         });
       })
       .catch(() => {
