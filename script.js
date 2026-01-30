@@ -1,90 +1,32 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ================= CONFIG ================= */
-
-  const GOOGLE_SCRIPT_URL =
+  const URL =
     "https://script.google.com/macros/s/AKfycbwGj5sUuVii6WYen7Gp6kER-8CbPBqp9yXK_q0th3i7vaqbvxUtbM3dyQszmHNZzSwSiw/exec";
-
-  /* ================= HELPERS ================= */
 
   const el = id => document.getElementById(id);
 
-  function todayISO() {
+  function today() {
     return new Date().toISOString().split("T")[0];
   }
 
-  function showView(viewId) {
-    document.querySelectorAll(".view-page")
-      .forEach(v => v.classList.add("hidden-view"));
+  /* INIT DATE */
+  el("dateInput").value = today();
 
-    el(viewId).classList.remove("hidden-view");
-  }
-
-  /* ================= STATE ================= */
-
-  let currentRef = null;
-
-  /* ================= BOTTOM NAV ================= */
-
-  document.querySelectorAll(".bottom-nav button").forEach(btn => {
-    btn.onclick = async () => {
+  /* NAV */
+  document.querySelectorAll(".bottom-nav button").forEach(b => {
+    b.onclick = () => {
       document.querySelectorAll(".view-page")
         .forEach(v => v.classList.add("hidden-view"));
-
-      el(btn.dataset.target).classList.remove("hidden-view");
-
-      if (btn.dataset.target === "createLetterView") {
-        await startNewLetter();
-      }
+      el(b.dataset.target).classList.remove("hidden-view");
     };
   });
 
-  /* ================= NEW LETTER (FIXED) ================= */
-
-  async function startNewLetter() {
-    // Always set today's date
-    el("dateInput").value = todayISO();
-
-    // If ref already generated for this letter, do nothing
-    if (currentRef) {
-      el("refInput").value = currentRef;
-      return;
-    }
-
-    try {
-      const res = await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "commitRef" })
-      });
-
-      const data = await res.json();
-
-      if (!data || !data.nextRef) {
-        throw new Error("Invalid ref response");
-      }
-
-      currentRef = data.nextRef;
-      el("refInput").value = currentRef;
-
-    } catch (e) {
-      // Offline / fallback
-      const last = localStorage.getItem("lastRef") || "JMM-000";
-      const n = parseInt(last.split("-")[1] || "0", 10) + 1;
-      currentRef = `JMM-${String(n).padStart(3, "0")}`;
-      localStorage.setItem("lastRef", currentRef);
-      el("refInput").value = currentRef;
-    }
-  }
-
-  /* ================= PREVIEW ================= */
-
+  /* PREVIEW */
   el("generatePreviewBtn").onclick = () => {
-    el("refText").textContent = el("refInput").value || "";
-    el("toText").textContent = el("toInput").value || "";
-    el("letterBody").textContent = el("bodyInput").value || "";
-
-    el("dateText").textContent = formatDate(el("dateInput").value);
+    el("refText").textContent = "Will be generated on save";
+    el("dateText").textContent = el("dateInput").value;
+    el("toText").textContent = el("toInput").value;
+    el("letterBody").textContent = el("bodyInput").value;
 
     el("createLetterView").classList.add("hidden-view");
     el("previewView").classList.remove("hidden-view");
@@ -95,50 +37,79 @@ document.addEventListener("DOMContentLoaded", () => {
     el("createLetterView").classList.remove("hidden-view");
   };
 
-  /* ================= SAVE ================= */
-
+  /* SAVE */
   el("saveLetterBtn").onclick = async () => {
-    if (!currentRef) {
-      alert("Ref No missing. Please reopen New Letter.");
+    if (!el("subjectInput").value.trim()) {
+      alert("Subject is required");
       return;
     }
 
-    await fetch(GOOGLE_SCRIPT_URL, {
+    const payload = {
+      action: "save",
+      data: {
+        date: el("dateInput").value,
+        language: el("targetLangSelect").value || "manual",
+        subject: el("subjectInput").value,
+        address: el("toInput").value,
+        content: el("bodyInput").value,
+        greetingIncluded: el("printGreetingCheck").checked,
+        fullState: collectState()
+      }
+    };
+
+    const res = await fetch(URL, {
       method: "POST",
-      mode: "no-cors",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "save",
-        data: {
-          ref: currentRef,
-          letterNo: currentRef,
-          date: el("dateInput").value,
-          language: el("targetLangSelect").value,
-          subject: extractSubject(el("bodyInput").value),
-          to: el("toInput").value,
-          body: el("bodyInput").value,
-          greetingIncluded: el("printGreetingCheck").checked
-        }
-      })
+      body: JSON.stringify(payload)
     });
 
-    currentRef = null; // reset after save
+    const r = await res.json();
+    alert(`Letter saved as ${r.ref}`);
     location.reload();
   };
 
-  /* ================= UTIL ================= */
+  /* HISTORY + DELETE */
+  fetch(URL)
+    .then(r => r.json())
+    .then(list => {
+      const h = el("historyList");
+      h.innerHTML = "";
 
-  function formatDate(iso) {
-    if (!iso) return "";
-    const d = new Date(iso);
-    return `${String(d.getDate()).padStart(2, "0")}/${
-      String(d.getMonth() + 1).padStart(2, "0")
-    }/${d.getFullYear()}`;
+      list.reverse().forEach(l => {
+        const d = document.createElement("div");
+        d.className = "history-item";
+        d.innerHTML = `
+          <b>${l.ref}</b><br>
+          ${l.subject}<br>
+          <small>${l.date}</small>
+          <button class="delete-btn">🗑</button>
+        `;
+
+        d.querySelector(".delete-btn").onclick = e => {
+          e.stopPropagation();
+          if (!confirm(`Delete ${l.ref}?`)) return;
+          deleteLetter(l.rowIndex);
+        };
+
+        h.appendChild(d);
+      });
+    });
+
+  function deleteLetter(row) {
+    fetch(URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "delete", rowIndex: row })
+    }).then(() => location.reload());
   }
 
-  function extractSubject(body) {
-    if (!body) return "";
-    return body.split("\n")[0].slice(0, 100);
+  function collectState() {
+    return {
+      to: el("toInput").value,
+      body: el("bodyInput").value,
+      subject: el("subjectInput").value,
+      printGreeting: el("printGreetingCheck").checked
+    };
   }
 
 });
