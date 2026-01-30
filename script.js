@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const el = id => document.getElementById(id);
 
-  let mode = "new";           // new | edit
+  let mode = "new";              // new | edit
   let currentRef = null;
   let currentRowIndex = null;
 
@@ -18,34 +18,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= LETTERHEAD ================= */
 
-  function loadSettings() {
+  (function loadSettings() {
     const s = JSON.parse(localStorage.getItem("jmmSettings")) || {};
-    el("h1").textContent = s.h1 || "";
-    el("h2").textContent = s.h2 || "";
-    el("h3").textContent = s.h3 || "";
-    el("h4").textContent = s.h4 || "";
-    el("h5").textContent = s.h5 || "";
-    el("footerBar").textContent = s.footer || "";
-  }
-  loadSettings();
+    ["h1","h2","h3","h4","h5","footerBar"].forEach(k => {
+      if (el(k)) el(k).textContent = s[k] || "";
+    });
+  })();
 
   /* ================= NAV ================= */
 
   document.querySelectorAll(".bottom-nav button").forEach(b => {
     b.onclick = () => {
-      document.querySelectorAll(".view-page")
-        .forEach(v => v.classList.add("hidden-view"));
-      el(b.dataset.target).classList.remove("hidden-view");
-
+      show(b.dataset.target);
       if (b.dataset.target === "createLetterView" && mode === "new") {
-        safePeekRef();
+        peekRef();
       }
     };
   });
 
-  /* ================= SAFE REF ================= */
+  /* ================= REF (PEEK ONLY) ================= */
 
-  async function safePeekRef() {
+  async function peekRef() {
     try {
       const r = await fetch(URL, {
         method: "POST",
@@ -54,22 +47,22 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const j = await r.json();
       el("refInput").value = j.nextRef;
+      el("refHelpText").textContent =
+        `This letter will be saved with Ref No: ${j.nextRef}`;
       currentRef = j.nextRef;
     } catch {
       el("refInput").value = "";
+      el("refHelpText").textContent = "";
     }
   }
 
   /* ================= PREVIEW ================= */
 
   el("generatePreviewBtn").onclick = async () => {
+    if (mode === "new") await peekRef();
 
-    if (mode === "new") {
-      await safePeekRef();
-      el("refText").textContent = currentRef || "—";
-    } else {
-      el("refText").textContent = currentRef;
-    }
+    el("refText").textContent =
+      mode === "edit" ? currentRef : (currentRef || "Will be generated on save");
 
     el("dateText").textContent = formatDate(el("dateInput").value);
     el("toText").textContent = el("toInput").value;
@@ -83,14 +76,13 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= SAVE ================= */
 
   el("saveLetterBtn").onclick = async () => {
-
     if (!el("subjectInput").value.trim()) {
       alert("Subject is required");
       return;
     }
 
     if (mode === "new") {
-      const res = await fetch(URL, {
+      const r = await fetch(URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({
@@ -98,8 +90,8 @@ document.addEventListener("DOMContentLoaded", () => {
           data: collectData()
         })
       });
-      const r = await res.json();
-      alert(`Saved as ${r.ref}`);
+      const j = await r.json();
+      alert(`Saved as ${j.ref}`);
     } else {
       await fetch(URL, {
         method: "POST",
@@ -128,9 +120,9 @@ document.addEventListener("DOMContentLoaded", () => {
         h.innerHTML = "";
 
         list.reverse().forEach(l => {
-          const card = document.createElement("div");
-          card.className = "history-item";
-          card.innerHTML = `
+          const d = document.createElement("div");
+          d.className = "history-item";
+          d.innerHTML = `
             <b>${l.ref}</b><br>
             ${l.subject}<br>
             <small>${l.date}</small>
@@ -141,23 +133,22 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
           `;
 
-          card.querySelector(".edit-btn").onclick = e => {
+          d.querySelector(".edit-btn").onclick = e => {
             e.stopPropagation();
             loadForEdit(l);
           };
 
-          card.querySelector(".dup-btn").onclick = e => {
+          d.querySelector(".dup-btn").onclick = e => {
             e.stopPropagation();
             loadForDuplicate(l);
           };
 
-          card.querySelector(".del-btn").onclick = e => {
+          d.querySelector(".del-btn").onclick = e => {
             e.stopPropagation();
-            if (!confirm(`Delete ${l.ref}?`)) return;
-            deleteLetter(l.rowIndex);
+            if (confirm(`Delete ${l.ref}?`)) deleteLetter(l.rowIndex);
           };
 
-          h.appendChild(card);
+          h.appendChild(d);
         });
       });
   }
@@ -173,6 +164,9 @@ document.addEventListener("DOMContentLoaded", () => {
     currentRowIndex = l.rowIndex;
 
     el("refInput").value = currentRef;
+    el("refHelpText").textContent =
+      `This letter will be saved with Ref No: ${currentRef}`;
+
     el("dateInput").value = d.date || l.date;
     el("subjectInput").value = d.subject || l.subject;
     el("toInput").value = d.address || l.address;
@@ -191,8 +185,10 @@ document.addEventListener("DOMContentLoaded", () => {
     currentRowIndex = null;
 
     el("refInput").value = "";
+    el("refHelpText").textContent = "";
+
     el("dateInput").value = today();
-    el("subjectInput").value = d.subject + " (Copy)";
+    el("subjectInput").value = (d.subject || "") + " (Copy)";
     el("toInput").value = d.address || "";
     el("bodyInput").value = d.content || "";
     el("targetLangSelect").value = d.language || "manual";
@@ -228,8 +224,8 @@ document.addEventListener("DOMContentLoaded", () => {
     mode = "new";
     currentRef = null;
     currentRowIndex = null;
-
     el("refInput").value = "";
+    el("refHelpText").textContent = "";
     el("dateInput").value = today();
     el("subjectInput").value = "";
     el("toInput").value = "";
