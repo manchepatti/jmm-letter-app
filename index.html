@@ -19,18 +19,14 @@
 
 <div class="app-container">
 
-<!-- ================= DASHBOARD ================= -->
+<!-- ================= DASHBOARD (HISTORY ONLY) ================= -->
 <div id="dashboardView" class="view-page">
   <div class="dashboard-header">
     <h1>Dashboard</h1>
   </div>
 
   <div class="control-panel">
-    <button id="newLetterBtn" class="primary-action-btn">
-      ➕ Create New Letter
-    </button>
-
-    <h3 style="margin-top:20px;">Recent Letters</h3>
+    <h3>Recent Letters</h3>
     <div id="historyList" class="history-panel"></div>
   </div>
 </div>
@@ -44,14 +40,21 @@
   <div class="control-panel">
 
     <h3>Letter Version</h3>
-    <label><input type="radio" name="footerVersion" value="default" checked> Manche</label>
-    <label><input type="radio" name="footerVersion" value="mumbai"> Mumbai</label>
+    <label>
+      <input type="radio" name="footerVersion" value="default" checked>
+      Manche (Default)
+    </label>
+    <label>
+      <input type="radio" name="footerVersion" value="mumbai">
+      Mumbai
+    </label>
 
     <div class="control-group">
       <label>Ref No</label>
-      <input id="refInput">
+      <input id="refInput" placeholder="JMM-001">
       <label class="checkbox-label">
-        <input type="checkbox" id="printRefCheck"> Include Ref No
+        <input type="checkbox" id="printRefCheck">
+        Include Ref No in Print
       </label>
     </div>
 
@@ -62,21 +65,33 @@
 
     <div class="control-group">
       <label>To Address</label>
-      <textarea id="toInput"></textarea>
+      <textarea id="toInput" rows="3" placeholder="To address..."></textarea>
       <label class="checkbox-label">
-        <input type="checkbox" id="printToCheck"> Include To
+        <input type="checkbox" id="printToCheck">
+        Include ‘To’ in Print
       </label>
     </div>
 
     <div class="control-group">
       <label>Letter Body</label>
-      <textarea id="bodyInput"></textarea>
+      <textarea id="bodyInput" rows="6" placeholder="Type main content here..."></textarea>
     </div>
 
     <h3>Print Options</h3>
-    <label><input type="checkbox" id="printGreetingCheck"> Islamic Greeting</label><br>
-    <label><input type="checkbox" id="printHindiNameCheck" checked> Hindi Org Name</label><br>
-    <label><input type="checkbox" id="printSadarGreetingCheck"> Sadar Greeting</label>
+    <label>
+      <input type="checkbox" id="printGreetingCheck">
+      Islamic Greeting
+    </label><br>
+
+    <label>
+      <input type="checkbox" id="printHindiNameCheck" checked>
+      Hindi Organization Name
+    </label><br>
+
+    <label>
+      <input type="checkbox" id="printSadarGreetingCheck">
+      Sadar Greeting
+    </label>
 
     <h3>Translation</h3>
     <select id="targetLangSelect">
@@ -84,6 +99,7 @@
       <option value="hi">Hindi</option>
       <option value="en">English</option>
     </select>
+
     <button id="translateBtn">🌐 Translate Body & To</button>
 
     <button id="generatePreviewBtn" class="primary-action-btn">
@@ -110,7 +126,9 @@
     <h3>Footer</h3>
     <textarea id="settingFooterAddr" placeholder="Footer Address"></textarea>
 
-    <button id="saveSettingsBtn" class="primary-action-btn">💾 Save Settings</button>
+    <button id="saveSettingsBtn" class="primary-action-btn">
+      💾 Save Settings
+    </button>
   </div>
 </div>
 
@@ -135,8 +153,12 @@
       </div>
 
       <div class="letter-meta">
-        <div id="refDisplay"><b>Ref:</b> <span id="refText"></span></div>
-        <div class="date-section"><b>Date:</b> <span id="dateText"></span></div>
+        <div id="refDisplay">
+          <b>Ref:</b> <span id="refText"></span>
+        </div>
+        <div class="date-section">
+          <b>Date:</b> <span id="dateText"></span>
+        </div>
       </div>
 
       <div id="toDisplay" class="letter-to">
@@ -163,23 +185,32 @@
 
 <!-- ================= BOTTOM NAV ================= -->
 <div class="bottom-nav">
-  <button data-target="dashboardView" class="active">🏠<br>Dashboard</button>
-  <button data-target="createLetterView">➕<br>New</button>
-  <button data-target="settingsView">⚙️<br>Settings</button>
+  <button data-target="dashboardView" class="active">
+    🏠<br>Dashboard
+  </button>
+  <button data-target="createLetterView">
+    ➕<br>New Letter
+  </button>
+  <button data-target="settingsView">
+    ⚙️<br>Settings
+  </button>
 </div>
 
 <script src="script.js"></script>
 
 <script>
-const navButtons = document.querySelectorAll('.bottom-nav button');
-const pages = document.querySelectorAll('.view-page');
+const navButtons = document.querySelectorAll(".bottom-nav button");
+const pages = document.querySelectorAll(".view-page");
 
 navButtons.forEach(btn => {
   btn.onclick = () => {
-    pages.forEach(p => p.classList.add('hidden-view'));
-    navButtons.forEach(b => b.classList.remove('active'));
-    document.getElementById(btn.dataset.target).classList.remove('hidden-view');
-    btn.classList.add('active');
+    pages.forEach(p => p.classList.add("hidden-view"));
+    navButtons.forEach(b => b.classList.remove("active"));
+
+    document.getElementById(btn.dataset.target)
+      .classList.remove("hidden-view");
+
+    btn.classList.add("active");
   };
 });
 </script>
