@@ -46,6 +46,49 @@
 }
 
 /* Mobile safety */
+/* ================= PAGE VISIBILITY ================= */
+
+.view-page {
+  display: none;
+  width: 100%;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.view-page:not(.hidden-view) {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.hidden-view {
+  display: none !important;
+}
+
+/* ================= SMOOTH PAGE TRANSITION ================= */
+
+/* Prevent layout jump */
+.app-container {
+  min-height: 100vh;
+}
+
+/* Slight fade on navigation tap (mobile polish) */
+.bottom-nav button {
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.bottom-nav button:active {
+  transform: scale(0.95);
+}
+
+/* Optional: softer entry on large screens */
+@media (min-width: 768px) {
+  .view-page {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+}
+
 @media (max-width: 480px) {
   .history-actions {
     gap: 6px;
