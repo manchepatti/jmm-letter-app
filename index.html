@@ -25,11 +25,15 @@
 
   <div class="control-panel">
     <h3>Recent Letters</h3>
-    <div id="historyList" class="history-panel"></div>
+
+    <!-- HISTORY LIST -->
+    <div id="historyList" class="history-panel">
+      <!-- JS injects items -->
+    </div>
   </div>
 </div>
 
-<!-- ================= CREATE LETTER ================= -->
+<!-- ================= CREATE / EDIT LETTER ================= -->
 <div id="createLetterView" class="view-page hidden-view">
 
   <div class="dashboard-header">
@@ -192,7 +196,7 @@
 
 <!-- ================= BOTTOM NAV ================= -->
 <div class="bottom-nav">
-  <button data-target="dashboardView" class="active">
+  <button data-target="dashboardView">
     🏠<br>Dashboard
   </button>
   <button data-target="createLetterView">
