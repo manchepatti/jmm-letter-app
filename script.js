@@ -5,18 +5,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const GOOGLE_SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbwGj5sUuVii6WYen7Gp6kER-8CbPBqp9yXK_q0th3i7vaqbvxUtbM3dyQszmHNZzSwSiw/exec";
 
-  /* ================= ELEMENTS ================= */
+  /* ================= HELPERS ================= */
 
-  const views = {
-    dashboard: el("dashboardView"),
-    create: el("createLetterView"),
-    preview: el("previewView"),
-    settings: el("settingsView")
-  };
+  const el = id => document.getElementById(id);
+  const $$ = sel => document.querySelector(sel);
+
+  function showView(viewId) {
+    document.querySelectorAll(".view-page")
+      .forEach(v => v.classList.add("hidden-view"));
+    el(viewId).classList.remove("hidden-view");
+
+    document.querySelectorAll(".bottom-nav button")
+      .forEach(b => b.classList.remove("active"));
+
+    const navBtn = document.querySelector(
+      `.bottom-nav button[data-target="${viewId}"]`
+    );
+    if (navBtn) navBtn.classList.add("active");
+  }
+
+  /* ================= ELEMENTS ================= */
 
   const newLetterBtn = el("newLetterBtn");
   const generatePreviewBtn = el("generatePreviewBtn");
-  const backToCreateBtn = el("editLetterBtn");
+  const editLetterBtn = el("editLetterBtn");
   const saveLetterBtn = el("saveLetterBtn");
   const translateBtn = el("translateBtn");
   const saveSettingsBtn = el("saveSettingsBtn");
@@ -47,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const historyList = el("historyList");
 
-  /* Letterhead (Preview) */
+  /* Letterhead */
   const h1 = el("h1");
   const h2 = el("h2");
   const h3 = el("h3");
@@ -55,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const h5 = el("h5");
   const footerBar = el("footerBar");
 
-  /* Settings inputs */
+  /* Settings */
   const settingH1 = el("settingH1");
   const settingH2 = el("settingH2");
   const settingH3 = el("settingH3");
@@ -69,21 +81,23 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSettings();
   fetchHistory();
 
-  /* ================= NAVIGATION ================= */
+  /* ================= DASHBOARD → CREATE ================= */
 
   newLetterBtn.onclick = async () => {
     clearForm();
     await setNextRef();
-    switchView("create");
+    showView("createLetterView");
   };
+
+  /* ================= PREVIEW ================= */
 
   generatePreviewBtn.onclick = () => {
     buildPreview();
-    switchView("preview");
+    showView("previewView");
   };
 
-  backToCreateBtn.onclick = () => {
-    switchView("create");
+  editLetterBtn.onclick = () => {
+    showView("createLetterView");
   };
 
   /* ================= SETTINGS ================= */
@@ -103,23 +117,24 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   function loadSettings() {
-    const saved = JSON.parse(localStorage.getItem("jmmSettings")) || {
+    const s = JSON.parse(localStorage.getItem("jmmSettings")) || {
       h1: "جماعت المسلمین مانچے",
       h2: "जमातुल मुस्लिमीन मणचे",
       h3: "Jamatul Muslimeen Manche",
       h4: "Reg No. F-3495/10/08/10",
       h5: "मुक्काम पोस्ट मणचे, मुस्लिमीन वाडी, तालुका देवगड, जिल्हा सिंधुदुर्ग, महाराष्ट्र.",
-      footer: "PERMANENT ADDRESS: AT POST MANCHE, TALUKA DEVGAD, DISTRICT SINDHUDURG, PIN - 416811."
+      footer:
+        "PERMANENT ADDRESS: AT POST MANCHE, TALUKA DEVGAD, DISTRICT SINDHUDURG, PIN - 416811."
     };
 
-    settingH1.value = saved.h1;
-    settingH2.value = saved.h2;
-    settingH3.value = saved.h3;
-    settingH4.value = saved.h4;
-    settingH5.value = saved.h5;
-    settingFooterAddr.value = saved.footer;
+    settingH1.value = s.h1;
+    settingH2.value = s.h2;
+    settingH3.value = s.h3;
+    settingH4.value = s.h4;
+    settingH5.value = s.h5;
+    settingFooterAddr.value = s.footer;
 
-    applySettings(saved);
+    applySettings(s);
   }
 
   function applySettings(s) {
@@ -149,8 +164,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
 
     const last = localStorage.getItem("lastRef") || "JMM-000";
-    refInput.value = incrementRef(last);
-    localStorage.setItem("lastRef", refInput.value);
+    const next = incrementRef(last);
+    refInput.value = next;
+    localStorage.setItem("lastRef", next);
   }
 
   function incrementRef(ref) {
@@ -158,7 +174,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return `JMM-${String(n).padStart(3, "0")}`;
   }
 
-  /* ================= PREVIEW ================= */
+  /* ================= PREVIEW BUILD ================= */
 
   function buildPreview() {
     refText.textContent = refInput.value;
@@ -173,8 +189,8 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle(sadarGreetingLine, printSadarGreetingCheck.checked);
   }
 
-  function toggle(elm, show) {
-    elm.style.display = show ? "" : "none";
+  function toggle(node, show) {
+    node.style.display = show ? "" : "none";
   }
 
   /* ================= SAVE LETTER ================= */
@@ -198,67 +214,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }).then(() => {
       alert("Letter saved");
       fetchHistory();
-      switchView("dashboard");
+      showView("dashboardView");
     });
   };
 
   /* ================= TRANSLATION ================= */
 
   translateBtn.onclick = () => {
-    const payload = {
-      action: "translate",
-      text: {
-        body: bodyInput.value,
-        to: toInput.value
-      },
-      targetLang: targetLangSelect.value
-    };
-
     translateBtn.disabled = true;
 
     fetch(GOOGLE_SCRIPT_URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        action: "translate",
+        targetLang: targetLangSelect.value,
+        text: { body: bodyInput.value, to: toInput.value }
+      })
     })
-      .then(res => res.json())
-      .then(data => {
-        if (data.translated) {
-          bodyInput.value = data.translated.body || bodyInput.value;
-          toInput.value = data.translated.to || toInput.value;
+      .then(r => r.json())
+      .then(d => {
+        if (d.translated) {
+          bodyInput.value = d.translated.body || bodyInput.value;
+          toInput.value = d.translated.to || toInput.value;
         }
       })
-      .finally(() => {
-        translateBtn.disabled = false;
-      });
+      .finally(() => translateBtn.disabled = false);
   };
 
   /* ================= HISTORY ================= */
 
   function fetchHistory() {
-    historyList.innerHTML = "Loading...";
+    historyList.innerHTML = "Loading…";
     fetch(GOOGLE_SCRIPT_URL)
-      .then(res => res.json())
-      .then(renderHistory)
-      .catch(() => {
-        historyList.innerHTML = "Failed to load history";
+      .then(r => r.json())
+      .then(items => {
+        historyList.innerHTML = "";
+        if (!items.length) {
+          historyList.innerHTML = "No letters found";
+          return;
+        }
+        items.forEach(l => {
+          const d = document.createElement("div");
+          d.className = "history-item";
+          d.innerHTML = `<b>${l.ref}</b><br><small>${l.date}</small>`;
+          d.onclick = () => loadLetter(l.content);
+          historyList.appendChild(d);
+        });
       });
-  }
-
-  function renderHistory(items) {
-    historyList.innerHTML = "";
-    if (!items || !items.length) {
-      historyList.innerHTML = "No letters found";
-      return;
-    }
-
-    items.forEach(l => {
-      const div = document.createElement("div");
-      div.className = "history-item";
-      div.innerHTML = `<b>${l.ref}</b><br><small>${l.date}</small>`;
-      div.onclick = () => loadLetter(l.content);
-      historyList.appendChild(div);
-    });
   }
 
   function loadLetter(json) {
@@ -267,15 +270,10 @@ document.addEventListener("DOMContentLoaded", () => {
     dateInput.value = d.date || "";
     toInput.value = d.to || "";
     bodyInput.value = d.body || "";
-    switchView("create");
+    showView("createLetterView");
   }
 
-  /* ================= HELPERS ================= */
-
-  function switchView(name) {
-    Object.values(views).forEach(v => v.classList.add("hidden-view"));
-    views[name].classList.remove("hidden-view");
-  }
+  /* ================= UTIL ================= */
 
   function initDate() {
     const t = new Date().toISOString().split("T")[0];
@@ -294,10 +292,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function clearForm() {
     toInput.value = "";
     bodyInput.value = "";
-  }
-
-  function el(id) {
-    return document.getElementById(id);
   }
 
 });
