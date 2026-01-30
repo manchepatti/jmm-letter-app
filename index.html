@@ -11,7 +11,6 @@
 
 <body>
 
-<!-- ================= APP ================= -->
 <div class="app-container">
 
   <!-- DASHBOARD -->
@@ -35,7 +34,7 @@
       </select>
 
       <label>Ref No</label>
-      <input id="refInput" readonly>
+      <input id="refInput" readonly placeholder="Fetching…">
 
       <label>Date</label>
       <input type="date" id="dateInput">
@@ -55,77 +54,18 @@
     </div>
   </div>
 
-  <!-- SETTINGS -->
-  <div id="settingsView" class="view-page hidden-view">
-    <div class="dashboard-header">Signatories</div>
-    <div class="control-panel">
-      <textarea id="signatoryInput" rows="6"
-        placeholder="अध्यक्ष | श्री. असरफ सोलकर"></textarea>
-      <button id="saveSettingsBtn" class="primary-btn">Save</button>
-    </div>
-  </div>
+</div>
 
-  <!-- PREVIEW -->
-  <div id="previewView" class="view-page hidden-view">
-
-    <div class="preview-toolbar">
-      <button id="editLetterBtn">Edit</button>
-      <button onclick="window.print()">Print</button>
-    </div>
-
-    <div class="a4-wrapper">
-      <div class="a4-page">
-
-        <!-- LETTERHEAD -->
-        <div class="letterhead">
-          <div class="lh-line"></div>
-
-          <div class="lh-content">
-            <div class="lh-urdu">جماعت المسلمین مانچے</div>
-            <div class="lh-hindi">जमातुल मुस्लिमीन मणचे</div>
-            <div class="lh-english" id="lhEnglish">
-              Jamatul Muslimeen Manche
-            </div>
-            <div class="lh-reg">
-              Reg. No. F-3495/10/08/10
-            </div>
-          </div>
-
-          <div class="lh-line"></div>
-        </div>
-
-        <!-- BODY -->
-        <div class="letter-body">
-          <div class="meta">
-            <span><b>Ref:</b> <span id="refText"></span></span>
-            <span><b>Date:</b> <span id="dateText"></span></span>
-          </div>
-
-          <p><b>To:</b><br><span id="toText"></span></p>
-          <p><b>Subject:</b><br><span id="subjectText"></span></p>
-          <p><b>Matter:</b><br><span id="letterBody"></span></p>
-        </div>
-
-        <!-- SIGNATORY -->
-        <div class="signatory-footer">
-          <div id="signatoryBlock"></div>
-          <div class="address">
-            PERMANENT ADD: AT POST MANCHE, TALUKA DEVGAD,
-            DISTRICT SINDHUDURG, PIN – 416811
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
+<!-- LOADER -->
+<div id="loader" class="loader hidden">
+  <div class="spinner"></div>
+  <div id="loaderText">Loading…</div>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <button data-target="dashboardView">Dashboard</button>
   <button data-target="createLetterView">New</button>
-  <button data-target="settingsView">Settings</button>
 </div>
 
 <script src="script.js"></script>
