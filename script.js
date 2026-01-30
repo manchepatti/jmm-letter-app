@@ -16,7 +16,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const today = () => new Date().toISOString().split("T")[0];
   el("dateInput").value = today();
 
-  /* ================= PAGE NAVIGATION ================= */
+  /* ================= LETTERHEAD ================= */
+  function loadLetterhead() {
+    const s = JSON.parse(localStorage.getItem("jmmSettings")) || {};
+
+    el("h1").textContent = s.h1 || "";
+    el("h2").textContent = s.h2 || "";
+    el("h3").textContent = s.h3 || "";
+    el("h4").textContent = s.h4 || "";
+    el("h5").textContent = s.h5 || "";
+    el("footerBar").textContent = s.footer || "";
+  }
+  loadLetterhead();
+
+  /* ================= SETTINGS SAVE ================= */
+  el("saveSettingsBtn").onclick = () => {
+    const settings = {
+      h1: el("settingH1").value,
+      h2: el("settingH2").value,
+      h3: el("settingH3").value,
+      h4: el("settingH4").value,
+      h5: el("settingH5").value,
+      footer: el("settingFooterAddr").value
+    };
+    localStorage.setItem("jmmSettings", JSON.stringify(settings));
+    alert("Settings saved");
+    loadLetterhead();
+  };
+
+  /* ================= NAVIGATION ================= */
   document.querySelectorAll(".bottom-nav button").forEach(btn => {
     btn.addEventListener("click", () => {
       const target = btn.dataset.target;
@@ -24,7 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       show(target);
 
-      // When opening Create Letter → always fetch ref
       if (target === "createLetterView") {
         mode = "new";
         currentRowIndex = null;
@@ -35,15 +62,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= SHOW PAGE ================= */
   function show(viewId) {
-    document.querySelectorAll(".view-page").forEach(v => {
-      v.classList.add("hidden-view");
-    });
-
-    const page = el(viewId);
-    if (page) page.classList.remove("hidden-view");
+    document.querySelectorAll(".view-page")
+      .forEach(v => v.classList.add("hidden-view"));
+    el(viewId).classList.remove("hidden-view");
   }
 
-  /* ================= REF PEEK ================= */
+  /* ================= REF ================= */
   async function peekRef() {
     try {
       const res = await fetch(URL, {
@@ -51,7 +75,6 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ action: "peekRef" })
       });
-
       const data = await res.json();
       if (!data.nextRef) throw "bad";
 
@@ -59,7 +82,6 @@ document.addEventListener("DOMContentLoaded", () => {
       el("refInput").value = currentRef;
       el("refHelpText").textContent =
         `This letter will be saved with Ref No: ${currentRef}`;
-
     } catch {
       currentRef = null;
       el("refInput").value = "";
@@ -68,8 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ================= PREVIEW ================= */
-  el("generatePreviewBtn").addEventListener("click", async () => {
+  el("generatePreviewBtn").onclick = async () => {
     if (!currentRef) await peekRef();
+
+    loadLetterhead(); // 🔑 FIX
 
     el("refText").textContent = currentRef || "";
     el("dateText").textContent = formatDate(el("dateInput").value);
@@ -77,14 +101,12 @@ document.addEventListener("DOMContentLoaded", () => {
     el("letterBody").textContent = el("bodyInput").value;
 
     show("previewView");
-  });
+  };
 
-  el("editLetterBtn").addEventListener("click", () => {
-    show("createLetterView");
-  });
+  el("editLetterBtn").onclick = () => show("createLetterView");
 
   /* ================= SAVE ================= */
-  el("saveLetterBtn").addEventListener("click", async () => {
+  el("saveLetterBtn").onclick = async () => {
     if (!el("subjectInput").value.trim()) {
       alert("Subject is required");
       return;
@@ -94,10 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const r = await fetch(URL, {
         method: "POST",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({
-          action: "save",
-          data: collectData()
-        })
+        body: JSON.stringify({ action: "save", data: collectData() })
       });
       const j = await r.json();
       alert(`Saved as ${j.ref}`);
@@ -117,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
     resetForm();
     fetchHistory();
     show("dashboardView");
-  });
+  };
 
   /* ================= HISTORY ================= */
   function fetchHistory() {
@@ -130,7 +149,6 @@ document.addEventListener("DOMContentLoaded", () => {
         list.reverse().forEach(l => {
           const card = document.createElement("div");
           card.className = "history-item";
-
           card.innerHTML = `
             <div class="history-info">
               <b>${l.ref}</b><br>
@@ -147,6 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
           card.querySelector(".edit-btn").onclick = () => loadForEdit(l);
           card.querySelector(".preview-btn").onclick = () => {
             loadForEdit(l);
+            loadLetterhead();
             show("previewView");
           };
           card.querySelector(".del-btn").onclick = () => {
@@ -159,10 +178,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   fetchHistory();
 
-  /* ================= EDIT / DUPLICATE ================= */
+  /* ================= EDIT ================= */
   function loadForEdit(l) {
     const d = JSON.parse(l.raw || "{}");
-
     mode = "edit";
     currentRef = l.ref;
     currentRowIndex = l.rowIndex;
