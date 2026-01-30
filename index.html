@@ -2,21 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-
-  <!-- Mobile / PWA -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#68c751">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
 
   <title>JMM Letter Maker</title>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&family=Noto+Sans+Devanagari:wght@400;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
-  <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
@@ -24,126 +20,93 @@
 <div class="app-container">
 
   <!-- ================= DASHBOARD ================= -->
-  <div id="dashboardView" class="dashboard-container">
-
+  <div id="dashboardView" class="view-page">
     <div class="dashboard-header">
-      <h1>Letter Dashboard</h1>
-      <div class="header-actions">
-        <button id="openHistoryBtn">📜 History</button>
-        <button id="openSettingsBtn">⚙️</button>
-      </div>
+      <h1>Dashboard</h1>
     </div>
 
-    <div class="dashboard-content">
-
-      <!-- LEFT : LETTER FORM -->
-      <div class="control-panel">
-        <h2>Letter Details</h2>
-
-        <div class="control-group">
-          <label>Ref No</label>
-          <input type="text" id="refInput">
-        </div>
-
-        <div class="control-group">
-          <label>Date</label>
-          <input type="date" id="dateInput">
-        </div>
-
-        <div class="control-group">
-          <label>To</label>
-          <textarea id="toInput" rows="3"></textarea>
-        </div>
-
-        <div class="control-group">
-          <label>Letter Body</label>
-          <textarea id="bodyInput" rows="6"></textarea>
-        </div>
-
-        <button id="generatePreviewBtn" class="primary-action-btn">
-          📄 Generate Preview
-        </button>
+    <div class="control-panel">
+      <div class="control-group">
+        <label>Ref No</label>
+        <input id="refInput">
       </div>
 
-      <!-- RIGHT : HISTORY (DESKTOP ONLY) -->
-      <div class="history-panel">
-        <h2>Letter History</h2>
-        <div id="historyList"></div>
+      <div class="control-group">
+        <label>Date</label>
+        <input type="date" id="dateInput">
       </div>
 
+      <div class="control-group">
+        <label>To</label>
+        <textarea id="toInput"></textarea>
+      </div>
+
+      <div class="control-group">
+        <label>Letter Body</label>
+        <textarea id="bodyInput"></textarea>
+      </div>
+
+      <button id="generatePreviewBtn" class="primary-action-btn">
+        📄 Generate Preview
+      </button>
     </div>
   </div>
 
-  <!-- ================= MOBILE HISTORY PAGE ================= -->
-  <div id="historyMobilePage" class="history-panel hidden-view">
+  <!-- ================= HISTORY ================= -->
+  <div id="historyMobileView" class="view-page hidden-view">
     <div class="dashboard-header">
-      <button id="closeHistoryBtn">← Back</button>
-      <h1>Letter History</h1>
-      <span></span>
+      <h1>History</h1>
     </div>
-    <div id="historyListMobile"></div>
+    <div id="historyList" class="history-panel"></div>
+  </div>
+
+  <!-- ================= SETTINGS ================= -->
+  <div id="settingsMobileView" class="view-page hidden-view">
+    <div class="dashboard-header">
+      <h1>Settings</h1>
+    </div>
+
+    <div class="control-panel">
+      <input placeholder="Header Line 1">
+      <input placeholder="Header Line 2">
+      <input placeholder="Header Line 3">
+      <button class="primary-action-btn">Save Settings</button>
+    </div>
   </div>
 
   <!-- ================= PREVIEW ================= -->
-  <div id="previewView" class="preview-container hidden-view">
-    <div class="preview-toolbar">
+  <div id="previewView" class="view-page hidden-view">
+    <div class="dashboard-header">
       <button id="backToDashboardBtn">← Back</button>
-      <div>
-        <button id="saveLetterBtn">💾 Save</button>
-        <button onclick="window.print()">🖨️ Print</button>
-      </div>
+      <h1>Preview</h1>
     </div>
-
-    <div class="letter-scroll-area">
-      <div class="letter-page">
-        <header class="letter-header">
-          <div class="header-line urdu">جماعت المسلمین مانچے</div>
-          <div class="header-line hindi">जमातुल मुस्लिमीन मणचे</div>
-          <div class="header-line english">Jamatul Muslimeen Manche</div>
-        </header>
-
-        <div class="letter-body" id="letterBody"></div>
-      </div>
-    </div>
+    <div class="letter-body" id="letterBody"></div>
   </div>
 
 </div>
 
-<!-- ================= APP SCRIPT ================= -->
+<!-- ================= BOTTOM NAV ================= -->
+<div class="bottom-nav">
+  <button data-target="dashboardView" class="active">✍️<br>Dashboard</button>
+  <button data-target="historyMobileView">📜<br>History</button>
+  <button data-target="settingsMobileView">⚙️<br>Settings</button>
+</div>
+
 <script src="script.js"></script>
 
-<!-- ================= MOBILE HISTORY LOGIC ================= -->
 <script>
-  const openHistoryBtn = document.getElementById('openHistoryBtn');
-  const closeHistoryBtn = document.getElementById('closeHistoryBtn');
-  const historyMobilePage = document.getElementById('historyMobilePage');
-  const dashboardView = document.getElementById('dashboardView');
+  const navButtons = document.querySelectorAll('.bottom-nav button');
+  const pages = document.querySelectorAll('.view-page');
 
-  // Open history page on mobile
-  openHistoryBtn.addEventListener('click', () => {
-    if (window.innerWidth <= 768) {
-      dashboardView.classList.add('hidden-view');
-      historyMobilePage.classList.remove('hidden-view');
+  navButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      pages.forEach(p => p.classList.add('hidden-view'));
+      navButtons.forEach(b => b.classList.remove('active'));
 
-      // clone history list
-      const desktopHistory = document.getElementById('historyList');
-      const mobileHistory = document.getElementById('historyListMobile');
-      mobileHistory.innerHTML = desktopHistory.innerHTML;
-    }
+      document.getElementById(btn.dataset.target).classList.remove('hidden-view');
+      btn.classList.add('active');
+    });
   });
-
-  // Close history page
-  closeHistoryBtn.addEventListener('click', () => {
-    historyMobilePage.classList.add('hidden-view');
-    dashboardView.classList.remove('hidden-view');
-  });
-</script>
-
-<!-- ================= SERVICE WORKER ================= -->
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
-}
 </script>
 
 </body>
