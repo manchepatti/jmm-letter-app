@@ -1,62 +1,72 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  const el = (id) => document.getElementById(id);
+  const SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbwGj5sUuVii6WYen7Gp6kER-8CbPBqp9yXK_q0th3i7vaqbvxUtbM3dyQszmHNZzSwSiw/exec";
 
-  /* ================= PAGE SWITCH ================= */
+  const el = id => document.getElementById(id);
 
-  function show(viewId) {
-    document.querySelectorAll(".view-page").forEach(v => {
-      v.classList.add("hidden-view");
-    });
-    const page = el(viewId);
-    if (page) page.classList.remove("hidden-view");
+  function show(view) {
+    document.querySelectorAll(".view-page")
+      .forEach(v => v.classList.add("hidden-view"));
+    el(view).classList.remove("hidden-view");
   }
 
-  // Default page
+  function showLoader(text) {
+    el("loaderText").textContent = text || "Loading…";
+    el("loader").classList.remove("hidden");
+  }
+
+  function hideLoader() {
+    el("loader").classList.add("hidden");
+  }
+
+  /* INIT */
   show("dashboardView");
+  fetchHistory();
 
-  /* ================= NAVIGATION ================= */
-
+  /* NAV */
   document.querySelectorAll(".bottom-nav button").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const target = btn.dataset.target;
-      if (target) show(target);
-    });
+    btn.onclick = () => {
+      show(btn.dataset.target);
+      if (btn.dataset.target === "createLetterView") {
+        fetchRef();
+      }
+    };
   });
 
-  /* ================= PREVIEW BUTTON (FIX) ================= */
-
-  const previewBtn = el("generatePreviewBtn");
-
-  if (!previewBtn) {
-    alert("Preview button not found in HTML");
-    return;
+  /* FETCH REF */
+  async function fetchRef() {
+    showLoader("Fetching Ref No…");
+    try {
+      const r = await fetch(SCRIPT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "peekRef" })
+      });
+      const j = await r.json();
+      el("refInput").value = j.nextRef;
+    } finally {
+      hideLoader();
+    }
   }
 
-  previewBtn.addEventListener("click", () => {
+  /* HISTORY */
+  async function fetchHistory() {
+    showLoader("Loading recent letters…");
+    try {
+      const r = await fetch(SCRIPT_URL);
+      const list = await r.json();
+      const h = el("historyList");
+      h.innerHTML = "";
 
-    // Fill preview fields
-    el("refText").textContent = el("refInput")?.value || "";
-    el("dateText").textContent = el("dateInput")?.value || "";
-    el("toText").textContent = el("toInput")?.value || "";
-    el("subjectText").textContent = el("subjectInput")?.value || "";
-    el("letterBody").textContent = el("bodyInput")?.value || "";
-
-    // Letterhead toggle (safe)
-    const lh = el("letterheadSelect")?.value;
-    el("lhEnglish").textContent =
-      lh === "mumbai"
-        ? "Jamatul Muslimeen Manche – Mumbai"
-        : "Jamatul Muslimeen Manche";
-
-    // SHOW PREVIEW PAGE  ✅
-    show("previewView");
-  });
-
-  /* ================= EDIT BUTTON ================= */
-
-  el("editLetterBtn")?.addEventListener("click", () => {
-    show("createLetterView");
-  });
+      list.reverse().forEach(l => {
+        const d = document.createElement("div");
+        d.textContent = `${l.ref} — ${l.subject || ""}`;
+        h.appendChild(d);
+      });
+    } finally {
+      hideLoader();
+    }
+  }
 
 });
