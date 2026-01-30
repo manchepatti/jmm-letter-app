@@ -25,11 +25,7 @@
 
   <div class="control-panel">
     <h3>Recent Letters</h3>
-
-    <!-- HISTORY LIST -->
-    <div id="historyList" class="history-panel">
-      <!-- JS injects items -->
-    </div>
+    <div id="historyList" class="history-panel"></div>
   </div>
 </div>
 
@@ -42,18 +38,20 @@
 
   <div class="control-panel">
 
+    <!-- LETTERHEAD TOGGLE -->
+    <div class="control-group">
+      <label>Letterhead</label>
+      <select id="letterheadSelect">
+        <option value="manche">Manche</option>
+        <option value="mumbai">Manche - Mumbai</option>
+      </select>
+    </div>
+
     <!-- REF NO -->
     <div class="control-group">
       <label>Ref No</label>
-      <input
-        id="refInput"
-        type="text"
-        placeholder="Will be generated on save"
-        readonly
-      >
-      <div id="refHelpText" class="ref-help">
-        Ref No will be generated on save
-      </div>
+      <input id="refInput" type="text" readonly placeholder="Will be generated on save">
+      <div id="refHelpText" class="ref-help">Ref No will be generated on save</div>
     </div>
 
     <!-- DATE -->
@@ -64,80 +62,26 @@
 
     <!-- SUBJECT -->
     <div class="control-group">
-      <label>Subject <span style="color:red">*</span></label>
-      <input id="subjectInput" placeholder="Subject of the letter">
+      <label>Subject</label>
+      <input id="subjectInput" placeholder="Subject">
     </div>
 
     <!-- TO -->
     <div class="control-group">
-      <label>To Address</label>
-      <textarea id="toInput" rows="3" placeholder="To address..."></textarea>
+      <label>To</label>
+      <textarea id="toInput" rows="3" placeholder="To address"></textarea>
     </div>
 
     <!-- BODY -->
     <div class="control-group">
-      <label>Letter Body</label>
-      <textarea id="bodyInput" rows="6" placeholder="Type letter content here..."></textarea>
+      <label>Matter</label>
+      <textarea id="bodyInput" rows="6" placeholder="Letter content"></textarea>
     </div>
 
-    <!-- PRINT OPTIONS -->
-    <h3>Print Options</h3>
-
-    <label>
-      <input type="checkbox" id="printGreetingCheck">
-      Islamic Greeting
-    </label><br>
-
-    <label>
-      <input type="checkbox" id="printHindiNameCheck" checked>
-      Hindi Organization Name
-    </label><br>
-
-    <label>
-      <input type="checkbox" id="printSadarGreetingCheck">
-      Sadar Greeting
-    </label>
-
-    <!-- TRANSLATION -->
-    <h3>Translation</h3>
-    <select id="targetLangSelect">
-      <option value="manual">Manual</option>
-      <option value="mr">Marathi</option>
-      <option value="hi">Hindi</option>
-      <option value="en">English</option>
-    </select>
-
-    <button id="translateBtn">🌐 Translate Body & To</button>
-
-    <!-- PREVIEW -->
     <button id="generatePreviewBtn" class="primary-action-btn">
       📄 Generate Preview
     </button>
 
-  </div>
-</div>
-
-<!-- ================= SETTINGS ================= -->
-<div id="settingsView" class="view-page hidden-view">
-  <div class="dashboard-header">
-    <h1>Settings</h1>
-  </div>
-
-  <div class="control-panel">
-    <h3>Letterhead</h3>
-
-    <input id="settingH1" placeholder="Urdu Name">
-    <input id="settingH2" placeholder="Hindi Name">
-    <input id="settingH3" placeholder="English Name">
-    <input id="settingH4" placeholder="Registration No">
-    <textarea id="settingH5" placeholder="Address"></textarea>
-
-    <h3>Footer</h3>
-    <textarea id="settingFooterAddr" placeholder="Footer Address"></textarea>
-
-    <button id="saveSettingsBtn" class="primary-action-btn">
-      💾 Save Settings
-    </button>
   </div>
 </div>
 
@@ -154,12 +98,10 @@
     <div class="letter-page">
 
       <!-- LETTERHEAD -->
-      <div class="letter-header">
-        <div id="h1" class="header-line urdu"></div>
-        <div id="h2" class="header-line hindi"></div>
-        <div id="h3" class="header-line english"></div>
-        <div id="h4" class="header-line reg"></div>
-        <div id="h5" class="header-line address"></div>
+      <div class="letterhead-band">
+        <div id="lhHindi" class="lh-hindi"></div>
+        <div id="lhEnglish" class="lh-english"></div>
+        <div id="lhReg" class="lh-reg"></div>
       </div>
 
       <!-- META -->
@@ -168,25 +110,40 @@
         <div><b>Date:</b> <span id="dateText"></span></div>
       </div>
 
-      <!-- TO -->
-      <div class="letter-to">
-        <b>To</b>
+      <!-- BODY -->
+      <div class="letter-section">
+        <b>To:</b>
         <div id="toText"></div>
       </div>
 
-      <!-- GREETING -->
-      <div id="greetingDisplay" class="letter-greeting">
-        अस्सलामुअलयकुम रहीमतुल्ला ही बरकात हु
+      <div class="letter-section">
+        <b>Subject:</b>
+        <div id="subjectText"></div>
       </div>
 
-      <div id="greetingSubLine" class="letter-greeting-sub"></div>
-      <div id="sadarGreetingLine" class="letter-greeting-sub"></div>
+      <div class="letter-section">
+        <b>Matter:</b>
+        <div id="letterBody"></div>
+      </div>
 
-      <!-- BODY -->
-      <div id="letterBody" class="letter-body"></div>
+      <!-- SIGNATORIES -->
+      <div class="signatory-line"></div>
+
+      <div class="signatory-row">
+        <div><b>अध्यक्ष</b><br>श्री. असरफ<br>सोलकर</div>
+        <div><b>उपाध्यक्ष</b><br>श्री. इरफान<br>सोलकर</div>
+        <div><b>सेक्रेटरी</b><br>श्री. सुलतान<br>सोलकर</div>
+        <div><b>कोषाध्यक्ष</b><br>श्री. जावेद<br>सोलकर</div>
+        <div><b>सदस्य</b><br>श्री. नौशाद<br>शिरगावकर</div>
+        <div><b>सदस्य</b><br>श्री. मोहसिन<br>सोलकर</div>
+        <div><b>सदस्य</b><br>श्री. इरशाद<br>पावसकर</div>
+      </div>
 
       <!-- FOOTER -->
-      <div id="footerBar" class="footer-bar"></div>
+      <div class="footer-line"></div>
+      <div class="footer-text">
+        PERMANENT ADD: AT POST MANCHE, TALUKA DEVGAD, DISTRICT SINDHUDURG, PIN - 416811
+      </div>
 
     </div>
   </div>
@@ -196,18 +153,10 @@
 
 <!-- ================= BOTTOM NAV ================= -->
 <div class="bottom-nav">
-  <button data-target="dashboardView">
-    🏠<br>Dashboard
-  </button>
-  <button data-target="createLetterView">
-    ➕<br>New
-  </button>
-  <button data-target="settingsView">
-    ⚙️<br>Settings
-  </button>
+  <button data-target="dashboardView">🏠<br>Dashboard</button>
+  <button data-target="createLetterView">➕<br>New</button>
 </div>
 
 <script src="script.js"></script>
-
 </body>
 </html>
