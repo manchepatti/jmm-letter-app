@@ -31,22 +31,51 @@ document.addEventListener("DOMContentLoaded", () => {
     b.onclick = () => {
       document.querySelectorAll(".view-page")
         .forEach(v => v.classList.add("hidden-view"));
+
       el(b.dataset.target).classList.remove("hidden-view");
 
       if (b.dataset.target === "createLetterView") {
-        peekRef();
+        safePeekRef();
       }
     };
   });
 
+  /* ================= SAFE REF FETCH ================= */
+
+  async function safePeekRef() {
+    try {
+      const r = await fetch(URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "peekRef" })
+      });
+
+      if (!r.ok) throw new Error("Network");
+
+      const j = await r.json();
+
+      if (!j || !j.nextRef) throw new Error("Bad response");
+
+      el("refInput").value = j.nextRef;
+      return j.nextRef;
+
+    } catch (e) {
+      // NEVER show undefined
+      el("refInput").value = "";
+      return null;
+    }
+  }
+
   /* ================= PREVIEW ================= */
 
   el("generatePreviewBtn").onclick = async () => {
-    const ref = await peekRef();
-    el("refText").textContent = ref;
+
+    const ref = await safePeekRef();
+
+    el("refText").textContent = ref || "—";
     el("dateText").textContent = formatDate(el("dateInput").value);
-    el("toText").textContent = el("toInput").value;
-    el("letterBody").textContent = el("bodyInput").value;
+    el("toText").textContent = el("toInput").value || "";
+    el("letterBody").textContent = el("bodyInput").value || "";
 
     el("createLetterView").classList.add("hidden-view");
     el("previewView").classList.remove("hidden-view");
@@ -60,6 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= SAVE ================= */
 
   el("saveLetterBtn").onclick = async () => {
+
     if (!el("subjectInput").value.trim()) {
       alert("Subject is required");
       return;
@@ -72,18 +102,18 @@ document.addEventListener("DOMContentLoaded", () => {
         action: "save",
         data: {
           date: el("dateInput").value,
-          language: el("targetLangSelect").value,
+          language: el("targetLangSelect").value || "manual",
           subject: el("subjectInput").value,
           address: el("toInput").value,
           content: el("bodyInput").value,
-          greetingIncluded: el("printGreetingCheck").checked,
-          rawState: collectState()
+          greetingIncluded: el("printGreetingCheck").checked
         }
       })
     });
 
     const r = await res.json();
-    alert(`Saved as ${r.ref}`);
+    alert(`Letter saved as ${r.ref}`);
+
     resetForm();
     fetchHistory();
     show("dashboardView");
@@ -103,9 +133,9 @@ document.addEventListener("DOMContentLoaded", () => {
           card.className = "history-item";
 
           card.innerHTML = `
-            <b>${l.ref}</b><br>
-            ${l.subject}<br>
-            <small>${l.date}</small>
+            <b>${l.ref || "—"}</b><br>
+            ${l.subject || ""}<br>
+            <small>${l.date || ""}</small>
             <div class="history-actions">
               <button class="edit-btn">✏️</button>
               <button class="dup-btn">📄</button>
@@ -135,33 +165,31 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   fetchHistory();
 
-  /* ================= EDIT ================= */
+  /* ================= EDIT / DUPLICATE ================= */
 
   function editLetter(raw) {
-    const d = JSON.parse(raw);
+    const d = JSON.parse(raw || "{}");
 
     el("subjectInput").value = d.subject || "";
     el("toInput").value = d.address || "";
     el("bodyInput").value = d.content || "";
     el("targetLangSelect").value = d.language || "manual";
-    el("printGreetingCheck").checked = d.greetingIncluded || false;
+    el("printGreetingCheck").checked = !!d.greetingIncluded;
 
     show("createLetterView");
   }
 
-  /* ================= DUPLICATE ================= */
-
   function duplicateLetter(raw) {
-    const d = JSON.parse(raw);
+    const d = JSON.parse(raw || "{}");
 
-    el("subjectInput").value = d.subject + " (Copy)";
+    el("subjectInput").value = (d.subject || "") + " (Copy)";
     el("toInput").value = d.address || "";
     el("bodyInput").value = d.content || "";
     el("targetLangSelect").value = d.language || "manual";
-    el("printGreetingCheck").checked = d.greetingIncluded || false;
+    el("printGreetingCheck").checked = !!d.greetingIncluded;
 
     el("dateInput").value = today();
-    el("refInput").value = ""; // NEW ref on save
+    el("refInput").value = "";
 
     show("createLetterView");
   }
@@ -181,23 +209,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= HELPERS ================= */
 
-  async function peekRef() {
-    const r = await fetch(URL, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "peekRef" })
-    });
-    const j = await r.json();
-    el("refInput").value = j.nextRef;
-    return j.nextRef;
-  }
-
-  function show(id) {
-    document.querySelectorAll(".view-page")
-      .forEach(v => v.classList.add("hidden-view"));
-    el(id).classList.remove("hidden-view");
-  }
-
   function resetForm() {
     el("subjectInput").value = "";
     el("toInput").value = "";
@@ -206,17 +217,14 @@ document.addEventListener("DOMContentLoaded", () => {
     el("dateInput").value = today();
   }
 
-  function collectState() {
-    return {
-      subject: el("subjectInput").value,
-      address: el("toInput").value,
-      content: el("bodyInput").value,
-      language: el("targetLangSelect").value,
-      greetingIncluded: el("printGreetingCheck").checked
-    };
+  function show(id) {
+    document.querySelectorAll(".view-page")
+      .forEach(v => v.classList.add("hidden-view"));
+    el(id).classList.remove("hidden-view");
   }
 
   function formatDate(iso) {
+    if (!iso) return "";
     const d = new Date(iso);
     return `${String(d.getDate()).padStart(2, "0")}/${
       String(d.getMonth() + 1).padStart(2, "0")
