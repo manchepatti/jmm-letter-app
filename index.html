@@ -3,14 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#2e7d32">
-
 <title>JMM Letter App</title>
 
-<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="styles.css">
-
-<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&family=Noto+Sans&family=Noto+Sans+Devanagari&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+Devanagari&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -19,69 +15,53 @@
 
 <!-- ================= DASHBOARD ================= -->
 <div id="dashboardView" class="view-page">
-  <div class="dashboard-header">
-    <h1>Dashboard</h1>
-  </div>
-
+  <div class="dashboard-header"><h1>Dashboard</h1></div>
   <div class="control-panel">
     <h3>Recent Letters</h3>
-    <div id="historyList" class="history-panel"></div>
+    <div id="historyList"></div>
   </div>
 </div>
 
-<!-- ================= CREATE / EDIT LETTER ================= -->
+<!-- ================= CREATE LETTER ================= -->
 <div id="createLetterView" class="view-page hidden-view">
 
-  <div class="dashboard-header">
-    <h1>Create / Edit Letter</h1>
-  </div>
+  <div class="dashboard-header"><h1>Create Letter</h1></div>
 
   <div class="control-panel">
 
-    <!-- LETTERHEAD TOGGLE -->
-    <div class="control-group">
-      <label>Letterhead</label>
-      <select id="letterheadSelect">
-        <option value="manche">Manche</option>
-        <option value="mumbai">Manche - Mumbai</option>
-      </select>
-    </div>
+    <label>Letterhead</label>
+    <select id="letterheadSelect">
+      <option value="manche">Manche</option>
+      <option value="mumbai">Manche – Mumbai</option>
+    </select>
 
-    <!-- REF NO -->
-    <div class="control-group">
-      <label>Ref No</label>
-      <input id="refInput" type="text" readonly placeholder="Will be generated on save">
-      <div id="refHelpText" class="ref-help">Ref No will be generated on save</div>
-    </div>
+    <label>Ref No</label>
+    <input id="refInput" readonly>
 
-    <!-- DATE -->
-    <div class="control-group">
-      <label>Date</label>
-      <input type="date" id="dateInput">
-    </div>
+    <label>Date</label>
+    <input type="date" id="dateInput">
 
-    <!-- SUBJECT -->
-    <div class="control-group">
-      <label>Subject</label>
-      <input id="subjectInput" placeholder="Subject">
-    </div>
+    <label>Subject</label>
+    <input id="subjectInput">
 
-    <!-- TO -->
-    <div class="control-group">
-      <label>To</label>
-      <textarea id="toInput" rows="3" placeholder="To address"></textarea>
-    </div>
+    <label>To</label>
+    <textarea id="toInput" rows="3"></textarea>
 
-    <!-- BODY -->
-    <div class="control-group">
-      <label>Matter</label>
-      <textarea id="bodyInput" rows="6" placeholder="Letter content"></textarea>
-    </div>
+    <label>Matter</label>
+    <textarea id="bodyInput" rows="6"></textarea>
 
-    <button id="generatePreviewBtn" class="primary-action-btn">
-      📄 Generate Preview
-    </button>
+    <button id="generatePreviewBtn">Preview</button>
+  </div>
+</div>
 
+<!-- ================= SETTINGS ================= -->
+<div id="settingsView" class="view-page hidden-view">
+  <div class="dashboard-header"><h1>Signatories</h1></div>
+
+  <div class="control-panel">
+    <textarea id="signatoryInput" rows="6"
+      placeholder="One signatory per line&#10;अध्यक्ष | श्री. असरफ सोलकर"></textarea>
+    <button id="saveSettingsBtn">Save</button>
   </div>
 </div>
 
@@ -89,74 +69,6 @@
 <div id="previewView" class="view-page hidden-view">
 
   <div class="preview-toolbar">
-    <button id="editLetterBtn">✏️ Edit</button>
-    <button id="saveLetterBtn">💾 Save</button>
-    <button onclick="window.print()">⬇️ Download</button>
-  </div>
-
-  <div class="letter-scroll-area">
-    <div class="letter-page">
-
-      <!-- LETTERHEAD -->
-      <div class="letterhead-band">
-        <div id="lhHindi" class="lh-hindi"></div>
-        <div id="lhEnglish" class="lh-english"></div>
-        <div id="lhReg" class="lh-reg"></div>
-      </div>
-
-      <!-- META -->
-      <div class="letter-meta">
-        <div><b>Ref:</b> <span id="refText"></span></div>
-        <div><b>Date:</b> <span id="dateText"></span></div>
-      </div>
-
-      <!-- BODY -->
-      <div class="letter-section">
-        <b>To:</b>
-        <div id="toText"></div>
-      </div>
-
-      <div class="letter-section">
-        <b>Subject:</b>
-        <div id="subjectText"></div>
-      </div>
-
-      <div class="letter-section">
-        <b>Matter:</b>
-        <div id="letterBody"></div>
-      </div>
-
-      <!-- SIGNATORIES -->
-      <div class="signatory-line"></div>
-
-      <div class="signatory-row">
-        <div><b>अध्यक्ष</b><br>श्री. असरफ<br>सोलकर</div>
-        <div><b>उपाध्यक्ष</b><br>श्री. इरफान<br>सोलकर</div>
-        <div><b>सेक्रेटरी</b><br>श्री. सुलतान<br>सोलकर</div>
-        <div><b>कोषाध्यक्ष</b><br>श्री. जावेद<br>सोलकर</div>
-        <div><b>सदस्य</b><br>श्री. नौशाद<br>शिरगावकर</div>
-        <div><b>सदस्य</b><br>श्री. मोहसिन<br>सोलकर</div>
-        <div><b>सदस्य</b><br>श्री. इरशाद<br>पावसकर</div>
-      </div>
-
-      <!-- FOOTER -->
-      <div class="footer-line"></div>
-      <div class="footer-text">
-        PERMANENT ADD: AT POST MANCHE, TALUKA DEVGAD, DISTRICT SINDHUDURG, PIN - 416811
-      </div>
-
-    </div>
-  </div>
-</div>
-
-</div>
-
-<!-- ================= BOTTOM NAV ================= -->
-<div class="bottom-nav">
-  <button data-target="dashboardView">🏠<br>Dashboard</button>
-  <button data-target="createLetterView">➕<br>New</button>
-</div>
-
-<script src="script.js"></script>
-</body>
-</html>
+    <button id="editLetterBtn">Edit</button>
+    <button onclick="window.print()">Print</button>
+  </div
