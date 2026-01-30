@@ -1,202 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#68c751">
-  <link rel="manifest" href="manifest.json">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#68c751">
+<link rel="manifest" href="manifest.json">
 
-  <title>JMM Letter App</title>
+<title>JMM Letter App</title>
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+Devanagari&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+Devanagari&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
 <div class="app-container">
 
-  <!-- ================= DASHBOARD (HISTORY) ================= -->
-  <div id="dashboardView" class="view-page">
-    <div class="dashboard-header">
-      <h1>Dashboard</h1>
-    </div>
-
-    <div class="control-panel">
-      <button id="newLetterBtn" class="primary-action-btn">
-        ➕ Create New Letter
-      </button>
-
-      <h3 style="margin-top:20px;">Recent Letters</h3>
-      <div id="historyList" class="history-panel"></div>
-    </div>
+<!-- ================= DASHBOARD ================= -->
+<div id="dashboardView" class="view-page">
+  <div class="dashboard-header">
+    <h1>Dashboard</h1>
   </div>
 
-  <!-- ================= CREATE NEW LETTER ================= -->
-  <div id="createLetterView" class="view-page hidden-view">
-    <div class="dashboard-header">
-      <h1>Create New Letter</h1>
-    </div>
+  <div class="control-panel">
+    <button id="newLetterBtn" class="primary-action-btn">
+      ➕ Create New Letter
+    </button>
 
-    <div class="control-panel">
+    <h3 style="margin-top:20px;">Recent Letters</h3>
+    <div id="historyList" class="history-panel"></div>
+  </div>
+</div>
 
-      <!-- Letter Version -->
-      <div class="control-group">
-        <label>Letter Version (Branch)</label>
-        <label><input type="radio" name="footerVersion" value="default" checked> Manche (Default)</label>
-        <label><input type="radio" name="footerVersion" value="mumbai"> Mumbai</label>
-      </div>
-
-      <!-- Ref -->
-      <div class="control-group">
-        <label>Ref No</label>
-        <input id="refInput" placeholder="JMM-001">
-        <label class="checkbox-label">
-          <input type="checkbox" id="printRefCheck"> Include Ref No in Print
-        </label>
-      </div>
-
-      <!-- Date -->
-      <div class="control-group">
-        <label>Date</label>
-        <input type="date" id="dateInput">
-      </div>
-
-      <!-- To -->
-      <div class="control-group">
-        <label>To Address</label>
-        <textarea id="toInput" rows="3" placeholder="To address..."></textarea>
-        <label class="checkbox-label">
-          <input type="checkbox" id="printToCheck"> Include ‘To’ in Print
-        </label>
-      </div>
-
-      <!-- Body -->
-      <div class="control-group">
-        <label>Letter Body</label>
-        <textarea id="bodyInput" rows="6" placeholder="Type main content here..."></textarea>
-      </div>
-
-      <!-- Print Options -->
-      <div class="control-group">
-        <h3>Print Options</h3>
-        <label class="checkbox-label">
-          <input type="checkbox" id="printGreetingCheck"> Islamic Greeting
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="printHindiNameCheck" checked> Hindi Organization Name
-        </label>
-        <label class="checkbox-label">
-          <input type="checkbox" id="printSadarGreetingCheck"> Sadar Greeting
-        </label>
-      </div>
-
-      <!-- Translation -->
-      <div class="control-group">
-        <h3>Translation</h3>
-        <select id="targetLangSelect">
-          <option value="mr">Marathi</option>
-          <option value="hi">Hindi</option>
-          <option value="en">English</option>
-        </select>
-        <button id="translateBtn">🌐 Translate Body & To</button>
-      </div>
-
-      <button id="generatePreviewBtn" class="primary-action-btn">
-        📄 Generate Preview
-      </button>
-    </div>
+<!-- ================= CREATE LETTER ================= -->
+<div id="createLetterView" class="view-page hidden-view">
+  <div class="dashboard-header">
+    <h1>Create New Letter</h1>
   </div>
 
-  <!-- ================= PREVIEW ================= -->
-  <div id="previewView" class="view-page hidden-view">
-    <div class="dashboard-header">
-      <button id="backToCreateBtn">← Back</button>
-      <h1>Preview</h1>
+  <div class="control-panel">
+
+    <h3>Letter Version</h3>
+    <label><input type="radio" name="footerVersion" value="default" checked> Manche</label>
+    <label><input type="radio" name="footerVersion" value="mumbai"> Mumbai</label>
+
+    <div class="control-group">
+      <label>Ref No</label>
+      <input id="refInput">
+      <label class="checkbox-label">
+        <input type="checkbox" id="printRefCheck"> Include Ref No
+      </label>
     </div>
 
-    <div class="letter-scroll-area">
-      <div class="letter-page">
+    <div class="control-group">
+      <label>Date</label>
+      <input type="date" id="dateInput">
+    </div>
 
-        <!-- HEADER -->
-        <div class="letter-header">
-          <div class="header-line urdu">جماعت المسلمین مانچے</div>
-          <div class="header-line hindi">जमातुल मुस्लिमीन मणचे</div>
-          <div class="header-line english">Jamatul Muslimeen Manche</div>
-          <div class="header-line reg">Reg No. F-3495/10/08/10</div>
-          <div class="header-line address">
-            मुक्काम पोस्ट मणचे, मुस्लिमीन वाडी, तालुका देवगड, जिल्हा सिंधुदुर्ग, महाराष्ट्र.
-          </div>
-        </div>
+    <div class="control-group">
+      <label>To Address</label>
+      <textarea id="toInput"></textarea>
+      <label class="checkbox-label">
+        <input type="checkbox" id="printToCheck"> Include To
+      </label>
+    </div>
 
-        <!-- META -->
-        <div class="letter-meta">
-          <div id="refDisplay" class="hidden-print">
-            <strong>Ref:</strong> <span id="refText"></span>
-          </div>
-          <div class="date-section">
-            <strong>Date:</strong> <span id="dateText"></span>
-          </div>
-        </div>
+    <div class="control-group">
+      <label>Letter Body</label>
+      <textarea id="bodyInput"></textarea>
+    </div>
 
-        <!-- TO -->
-        <div id="toDisplay" class="letter-to hidden-print">
-          <strong>To,</strong>
-          <div id="toText"></div>
-        </div>
+    <h3>Print Options</h3>
+    <label><input type="checkbox" id="printGreetingCheck"> Islamic Greeting</label><br>
+    <label><input type="checkbox" id="printHindiNameCheck" checked> Hindi Org Name</label><br>
+    <label><input type="checkbox" id="printSadarGreetingCheck"> Sadar Greeting</label>
 
-        <!-- GREETINGS -->
-        <div id="greetingDisplay" class="letter-greeting hidden-print">
-          अस्सलामुअलयकुम रहीमतुल्ला ही बरकात हु
-        </div>
+    <h3>Translation</h3>
+    <select id="targetLangSelect">
+      <option value="mr">Marathi</option>
+      <option value="hi">Hindi</option>
+      <option value="en">English</option>
+    </select>
+    <button id="translateBtn">🌐 Translate Body & To</button>
 
-        <div id="greetingSubLine" class="letter-greeting-sub hidden-print">
-          जमातुल मुस्लिमीन मणचे
-        </div>
+    <button id="generatePreviewBtn" class="primary-action-btn">
+      📄 Generate Preview
+    </button>
 
-        <div id="sadarGreetingLine" class="letter-greeting-sub hidden-print">
-          सदर साहब और पनच कमेटी जमातुल मुस्लिमीन मणचे को सलाम दुआएँ
-        </div>
+  </div>
+</div>
 
-        <!-- BODY -->
-        <div id="letterBody" class="letter-body"></div>
+<!-- ================= SETTINGS ================= -->
+<div id="settingsView" class="view-page hidden-view">
+  <div class="dashboard-header">
+    <h1>Settings</h1>
+  </div>
 
-        <!-- FOOTER -->
-        <div class="footer-bar">
-          PERMANENT ADDRESS: AT POST MANCHE, TALUKA DEVGAD, DISTRICT SINDHUDURG, PIN - 416811.
-        </div>
+  <div class="control-panel">
+    <h3>Letterhead</h3>
+    <input id="settingH1" placeholder="Urdu Name">
+    <input id="settingH2" placeholder="Hindi Name">
+    <input id="settingH3" placeholder="English Name">
+    <input id="settingH4" placeholder="Registration No">
+    <textarea id="settingH5" placeholder="Address"></textarea>
 
+    <h3>Footer</h3>
+    <textarea id="settingFooterAddr" placeholder="Footer Address"></textarea>
+
+    <button id="saveSettingsBtn" class="primary-action-btn">💾 Save Settings</button>
+  </div>
+</div>
+
+<!-- ================= PREVIEW ================= -->
+<div id="previewView" class="view-page hidden-view">
+
+  <div class="preview-toolbar">
+    <button id="editLetterBtn">✏️ Edit</button>
+    <button id="saveLetterBtn">💾 Save</button>
+    <button onclick="window.print()">⬇️ Download</button>
+  </div>
+
+  <div class="letter-scroll-area">
+    <div class="letter-page">
+
+      <div class="letter-header">
+        <div id="h1" class="header-line urdu"></div>
+        <div id="h2" class="header-line hindi"></div>
+        <div id="h3" class="header-line english"></div>
+        <div id="h4" class="header-line reg"></div>
+        <div id="h5" class="header-line address"></div>
       </div>
+
+      <div class="letter-meta">
+        <div id="refDisplay"><b>Ref:</b> <span id="refText"></span></div>
+        <div class="date-section"><b>Date:</b> <span id="dateText"></span></div>
+      </div>
+
+      <div id="toDisplay" class="letter-to">
+        <b>To</b>
+        <div id="toText"></div>
+      </div>
+
+      <div id="greetingDisplay" class="letter-greeting">
+        अस्सलामुअलयकुम रहीमतुल्ला ही बरकात हु
+      </div>
+
+      <div id="greetingSubLine" class="letter-greeting-sub"></div>
+      <div id="sadarGreetingLine" class="letter-greeting-sub"></div>
+
+      <div id="letterBody" class="letter-body"></div>
+
+      <div id="footerBar" class="footer-bar"></div>
+
     </div>
   </div>
+</div>
 
 </div>
 
-<!-- ================= BOTTOM NAV (MOBILE) ================= -->
+<!-- ================= BOTTOM NAV ================= -->
 <div class="bottom-nav">
   <button data-target="dashboardView" class="active">🏠<br>Dashboard</button>
-  <button data-target="createLetterView">➕<br>New Letter</button>
+  <button data-target="createLetterView">➕<br>New</button>
+  <button data-target="settingsView">⚙️<br>Settings</button>
 </div>
 
-<!-- ================= SCRIPTS ================= -->
 <script src="script.js"></script>
 
 <script>
-  const navButtons = document.querySelectorAll('.bottom-nav button');
-  const pages = document.querySelectorAll('.view-page');
+const navButtons = document.querySelectorAll('.bottom-nav button');
+const pages = document.querySelectorAll('.view-page');
 
-  navButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      pages.forEach(p => p.classList.add('hidden-view'));
-      navButtons.forEach(b => b.classList.remove('active'));
-      document.getElementById(btn.dataset.target).classList.remove('hidden-view');
-      btn.classList.add('active');
-    });
-  });
+navButtons.forEach(btn => {
+  btn.onclick = () => {
+    pages.forEach(p => p.classList.add('hidden-view'));
+    navButtons.forEach(b => b.classList.remove('active'));
+    document.getElementById(btn.dataset.target).classList.remove('hidden-view');
+    btn.classList.add('active');
+  };
+});
 </script>
 
 </body>
