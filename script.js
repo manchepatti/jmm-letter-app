@@ -9,183 +9,168 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ================= ELEMENTS ================= */
 
-  const dashboardView = document.getElementById('dashboardView');
-  const previewView = document.getElementById('previewView');
-
-  const historyMobileView = document.getElementById('historyMobileView');
-  const settingsMobileView = document.getElementById('settingsMobileView');
-
-  const openHistoryBtn = document.getElementById('openHistoryBtn');
-  const openSettingsBtn = document.getElementById('openSettingsBtn');
-  const backFromHistory = document.getElementById('backFromHistory');
-  const backFromSettings = document.getElementById('backFromSettings');
-
-  const historyList = document.getElementById('historyList');
-  const historyListMobile = document.getElementById('historyListMobile');
+  const views = {
+    dashboard: document.getElementById('dashboardView'),
+    create: document.getElementById('createLetterView'),
+    preview: document.getElementById('previewView'),
+    settings: document.getElementById('settingsView')
+  };
 
   const refInput = document.getElementById('refInput');
   const dateInput = document.getElementById('dateInput');
   const toInput = document.getElementById('toInput');
   const bodyInput = document.getElementById('bodyInput');
 
+  const printRefCheck = document.getElementById('printRefCheck');
+  const printToCheck = document.getElementById('printToCheck');
+  const printGreetingCheck = document.getElementById('printGreetingCheck');
+  const printHindiNameCheck = document.getElementById('printHindiNameCheck');
+  const printSadarGreetingCheck = document.getElementById('printSadarGreetingCheck');
+
+  const targetLangSelect = document.getElementById('targetLangSelect');
+  const translateBtn = document.getElementById('translateBtn');
+
+  const footerVersionRadios = document.getElementsByName('footerVersion');
+
   const refText = document.getElementById('refText');
   const dateText = document.getElementById('dateText');
   const toText = document.getElementById('toText');
   const letterBody = document.getElementById('letterBody');
 
-  const generatePreviewBtn = document.getElementById('generatePreviewBtn');
-  const backToDashboardBtn = document.getElementById('backToDashboardBtn');
-  const saveLetterBtn = document.getElementById('saveLetterBtn');
+  const refDisplay = document.getElementById('refDisplay');
+  const toDisplay = document.getElementById('toDisplay');
+  const greetingDisplay = document.getElementById('greetingDisplay');
+  const greetingSubLine = document.getElementById('greetingSubLine');
+  const sadarGreetingLine = document.getElementById('sadarGreetingLine');
 
-  const settingsModal = document.getElementById('settingsModal');
+  const generatePreviewBtn = document.getElementById('generatePreviewBtn');
+  const backToCreateBtn = document.getElementById('backToCreateBtn');
+
+  const historyList = document.getElementById('historyList');
 
   /* ================= INIT ================= */
 
-  const today = new Date().toISOString().split('T')[0];
-  if (dateInput) dateInput.value = today;
-  updateDate(today);
-
+  dateInput.value = new Date().toISOString().split('T')[0];
+  updateDate(dateInput.value);
   fetchHistory();
 
-  /* ================= DASHBOARD → PREVIEW ================= */
+  /* ================= VIEW SWITCH ================= */
 
-  generatePreviewBtn?.addEventListener('click', () => {
+  function switchView(target) {
+    Object.values(views).forEach(v => v.classList.add('hidden-view'));
+    target.classList.remove('hidden-view');
+  }
+
+  /* ================= PREVIEW ================= */
+
+  generatePreviewBtn.addEventListener('click', () => {
+
     refText.textContent = refInput.value;
-    updateDate(dateInput.value);
     toText.textContent = toInput.value;
     letterBody.textContent = bodyInput.value;
+    updateDate(dateInput.value);
 
-    dashboardView.classList.add('hidden-view');
-    previewView.classList.remove('hidden-view');
+    toggle(refDisplay, printRefCheck.checked);
+    toggle(toDisplay, printToCheck.checked);
+    toggle(greetingDisplay, printGreetingCheck.checked);
+    toggle(greetingSubLine, printHindiNameCheck.checked);
+    toggle(sadarGreetingLine, printSadarGreetingCheck.checked);
+
+    switchView(views.preview);
   });
 
-  backToDashboardBtn?.addEventListener('click', () => {
-    previewView.classList.add('hidden-view');
-    dashboardView.classList.remove('hidden-view');
+  backToCreateBtn.addEventListener('click', () => {
+    switchView(views.create);
   });
 
-  /* ================= SAVE LETTER ================= */
+  function toggle(el, show) {
+    el.classList.toggle('hidden-print', !show);
+  }
 
-  saveLetterBtn?.addEventListener('click', () => {
+  /* ================= TRANSLATION ================= */
+
+  translateBtn.addEventListener('click', () => {
+    if (!GOOGLE_SCRIPT_URL) {
+      alert('Google Script URL not configured');
+      return;
+    }
+
     const payload = {
-      action: 'save',
-      data: {
-        ref: refInput.value,
-        date: dateInput.value,
-        to: toInput.value,
-        body: bodyInput.value
-      }
+      action: 'translate',
+      text: {
+        body: bodyInput.value,
+        to: toInput.value
+      },
+      targetLang: targetLangSelect.value
     };
 
-    saveLetterBtn.textContent = 'Saving…';
-    saveLetterBtn.disabled = true;
+    translateBtn.disabled = true;
+    translateBtn.textContent = 'Translating…';
 
     fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
-    }).then(() => {
-      saveLetterBtn.textContent = '💾 Save';
-      saveLetterBtn.disabled = false;
-      fetchHistory();
-      alert('Letter saved');
-    });
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.translated) {
+          if (data.translated.body) bodyInput.value = data.translated.body;
+          if (data.translated.to) toInput.value = data.translated.to;
+        }
+      })
+      .catch(() => alert('Translation failed'))
+      .finally(() => {
+        translateBtn.disabled = false;
+        translateBtn.textContent = '🌐 Translate Body & To';
+      });
   });
 
   /* ================= HISTORY ================= */
 
   function fetchHistory() {
-    if (!historyList) return;
-
-    historyList.innerHTML = '<div style="padding:10px;color:#888">Loading…</div>';
+    historyList.innerHTML = '<div style="color:#888">Loading…</div>';
 
     fetch(GOOGLE_SCRIPT_URL)
       .then(res => res.json())
       .then(renderHistory)
       .catch(() => {
-        historyList.innerHTML =
-          '<div style="padding:10px;color:red">Failed to load history</div>';
+        historyList.innerHTML = '<div style="color:red">Failed to load</div>';
       });
   }
 
   function renderHistory(letters) {
     historyList.innerHTML = '';
     if (!letters || !letters.length) {
-      historyList.innerHTML =
-        '<div style="padding:10px;color:#888">No letters found</div>';
+      historyList.innerHTML = '<div>No letters found</div>';
       return;
     }
 
-    letters.forEach(letter => {
+    letters.forEach(l => {
       const div = document.createElement('div');
       div.className = 'history-item';
-      div.innerHTML = `
-        <div class="history-info">
-          <strong>${letter.ref || 'No Ref'}</strong><br>
-          <small>${letter.date || ''}</small>
-        </div>
-        <button>✏️</button>
-      `;
-
-      div.querySelector('button').onclick = () => loadLetter(letter.content);
+      div.innerHTML = `<strong>${l.ref}</strong><br><small>${l.date}</small>`;
+      div.onclick = () => loadLetter(l.content);
       historyList.appendChild(div);
     });
   }
 
   function loadLetter(json) {
-    try {
-      const data = JSON.parse(json);
-      refInput.value = data.ref || '';
-      dateInput.value = data.date || '';
-      toInput.value = data.to || '';
-      bodyInput.value = data.body || '';
-
-      historyMobileView?.classList.add('hidden-view');
-      dashboardView.classList.remove('hidden-view');
-    } catch {
-      alert('Failed to load letter');
-    }
+    const data = JSON.parse(json);
+    refInput.value = data.ref || '';
+    dateInput.value = data.date || '';
+    toInput.value = data.to || '';
+    bodyInput.value = data.body || '';
+    switchView(views.create);
   }
-
-  /* ================= MOBILE NAVIGATION ================= */
-
-  openHistoryBtn?.addEventListener('click', () => {
-    if (!isMobile()) return;
-
-    historyListMobile.innerHTML = historyList.innerHTML;
-    dashboardView.classList.add('hidden-view');
-    historyMobileView.classList.remove('hidden-view');
-  });
-
-  backFromHistory?.addEventListener('click', () => {
-    historyMobileView.classList.add('hidden-view');
-    dashboardView.classList.remove('hidden-view');
-  });
-
-  openSettingsBtn?.addEventListener('click', () => {
-    if (!isMobile()) {
-      settingsModal.style.display = 'block';
-      return;
-    }
-
-    dashboardView.classList.add('hidden-view');
-    settingsMobileView.classList.remove('hidden-view');
-  });
-
-  backFromSettings?.addEventListener('click', () => {
-    settingsMobileView.classList.add('hidden-view');
-    dashboardView.classList.remove('hidden-view');
-  });
 
   /* ================= HELPERS ================= */
 
   function updateDate(dateStr) {
-    if (!dateStr || !dateText) return;
     const d = new Date(dateStr);
     dateText.textContent =
-      `${String(d.getDate()).padStart(2,'0')}/` +
-      `${String(d.getMonth()+1).padStart(2,'0')}/` +
+      `${String(d.getDate()).padStart(2, '0')}/` +
+      `${String(d.getMonth() + 1).padStart(2, '0')}/` +
       d.getFullYear();
   }
 
