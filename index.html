@@ -1,26 +1,133 @@
-<!-- ================= LETTERHEAD ================= -->
-<div class="letterhead">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JMM Letter App</title>
 
-  <div class="lh-top-line"></div>
+<link rel="stylesheet" href="styles.css">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+Devanagari&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+</head>
 
-  <div class="lh-content">
-    <div class="lh-urdu">
-      جماعت المسلمین مانچے
-    </div>
+<body>
 
-    <div class="lh-hindi">
-      जमातुल मुस्लिमीन मणचे
-    </div>
+<!-- ================= APP ================= -->
+<div class="app-container">
 
-    <div class="lh-english" id="lhEnglish">
-      Jamatul Muslimeen Manche
-    </div>
-
-    <div class="lh-reg">
-      Reg. No. F-3495/10/08/10
+  <!-- DASHBOARD -->
+  <div id="dashboardView" class="view-page">
+    <div class="dashboard-header">Dashboard</div>
+    <div class="control-panel">
+      <h3>Recent Letters</h3>
+      <div id="historyList"></div>
     </div>
   </div>
 
-  <div class="lh-bottom-line"></div>
+  <!-- CREATE -->
+  <div id="createLetterView" class="view-page hidden-view">
+    <div class="dashboard-header">Create Letter</div>
+
+    <div class="control-panel">
+      <label>Letterhead</label>
+      <select id="letterheadSelect">
+        <option value="manche">Manche</option>
+        <option value="mumbai">Manche – Mumbai</option>
+      </select>
+
+      <label>Ref No</label>
+      <input id="refInput" readonly>
+
+      <label>Date</label>
+      <input type="date" id="dateInput">
+
+      <label>Subject</label>
+      <input id="subjectInput">
+
+      <label>To</label>
+      <textarea id="toInput" rows="3"></textarea>
+
+      <label>Matter</label>
+      <textarea id="bodyInput" rows="6"></textarea>
+
+      <button id="generatePreviewBtn" class="primary-btn">
+        Generate Preview
+      </button>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="settingsView" class="view-page hidden-view">
+    <div class="dashboard-header">Signatories</div>
+    <div class="control-panel">
+      <textarea id="signatoryInput" rows="6"
+        placeholder="अध्यक्ष | श्री. असरफ सोलकर"></textarea>
+      <button id="saveSettingsBtn" class="primary-btn">Save</button>
+    </div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div id="previewView" class="view-page hidden-view">
+
+    <div class="preview-toolbar">
+      <button id="editLetterBtn">Edit</button>
+      <button onclick="window.print()">Print</button>
+    </div>
+
+    <div class="a4-wrapper">
+      <div class="a4-page">
+
+        <!-- LETTERHEAD -->
+        <div class="letterhead">
+          <div class="lh-line"></div>
+
+          <div class="lh-content">
+            <div class="lh-urdu">جماعت المسلمین مانچے</div>
+            <div class="lh-hindi">जमातुल मुस्लिमीन मणचे</div>
+            <div class="lh-english" id="lhEnglish">
+              Jamatul Muslimeen Manche
+            </div>
+            <div class="lh-reg">
+              Reg. No. F-3495/10/08/10
+            </div>
+          </div>
+
+          <div class="lh-line"></div>
+        </div>
+
+        <!-- BODY -->
+        <div class="letter-body">
+          <div class="meta">
+            <span><b>Ref:</b> <span id="refText"></span></span>
+            <span><b>Date:</b> <span id="dateText"></span></span>
+          </div>
+
+          <p><b>To:</b><br><span id="toText"></span></p>
+          <p><b>Subject:</b><br><span id="subjectText"></span></p>
+          <p><b>Matter:</b><br><span id="letterBody"></span></p>
+        </div>
+
+        <!-- SIGNATORY -->
+        <div class="signatory-footer">
+          <div id="signatoryBlock"></div>
+          <div class="address">
+            PERMANENT ADD: AT POST MANCHE, TALUKA DEVGAD,
+            DISTRICT SINDHUDURG, PIN – 416811
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
 
 </div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <button data-target="dashboardView">Dashboard</button>
+  <button data-target="createLetterView">New</button>
+  <button data-target="settingsView">Settings</button>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
