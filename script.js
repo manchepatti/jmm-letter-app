@@ -5,26 +5,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const el = id => document.getElementById(id);
 
+  /* ================= DATE ================= */
+
   function today() {
     return new Date().toISOString().split("T")[0];
   }
-
-  /* INIT DATE */
   el("dateInput").value = today();
 
-  /* NAV */
+  /* ================= SETTINGS (RESTORED) ================= */
+
+  function loadSettings() {
+    const s = JSON.parse(localStorage.getItem("jmmSettings")) || {};
+    el("h1").textContent = s.h1 || "";
+    el("h2").textContent = s.h2 || "";
+    el("h3").textContent = s.h3 || "";
+    el("h4").textContent = s.h4 || "";
+    el("h5").textContent = s.h5 || "";
+    el("footerBar").textContent = s.footer || "";
+  }
+  loadSettings();
+
+  /* ================= NAV ================= */
+
   document.querySelectorAll(".bottom-nav button").forEach(b => {
     b.onclick = () => {
       document.querySelectorAll(".view-page")
         .forEach(v => v.classList.add("hidden-view"));
       el(b.dataset.target).classList.remove("hidden-view");
+
+      if (b.dataset.target === "createLetterView") {
+        peekRef();
+      }
     };
   });
 
-  /* PREVIEW */
-  el("generatePreviewBtn").onclick = () => {
-    el("refText").textContent = "Will be generated on save";
-    el("dateText").textContent = el("dateInput").value;
+  /* ================= PREVIEW (FIXED) ================= */
+
+  el("generatePreviewBtn").onclick = async () => {
+    const ref = await peekRef();
+    el("refText").textContent = ref;
+    el("dateText").textContent = formatDate(el("dateInput").value);
     el("toText").textContent = el("toInput").value;
     el("letterBody").textContent = el("bodyInput").value;
 
@@ -37,79 +57,78 @@ document.addEventListener("DOMContentLoaded", () => {
     el("createLetterView").classList.remove("hidden-view");
   };
 
-  /* SAVE */
+  /* ================= SAVE ================= */
+
   el("saveLetterBtn").onclick = async () => {
-    if (!el("subjectInput").value.trim()) {
-      alert("Subject is required");
-      return;
-    }
-
-    const payload = {
-      action: "save",
-      data: {
-        date: el("dateInput").value,
-        language: el("targetLangSelect").value || "manual",
-        subject: el("subjectInput").value,
-        address: el("toInput").value,
-        content: el("bodyInput").value,
-        greetingIncluded: el("printGreetingCheck").checked,
-        fullState: collectState()
-      }
-    };
-
     const res = await fetch(URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        action: "save",
+        data: {
+          date: el("dateInput").value,
+          language: el("targetLangSelect").value,
+          subject: el("subjectInput").value,
+          address: el("toInput").value,
+          content: el("bodyInput").value,
+          greetingIncluded: el("printGreetingCheck").checked
+        }
+      })
     });
 
     const r = await res.json();
-    alert(`Letter saved as ${r.ref}`);
-    location.reload();
+    alert(`Saved as ${r.ref}`);
+    fetchHistory();
+    show("dashboardView");
   };
 
-  /* HISTORY + DELETE */
-  fetch(URL)
-    .then(r => r.json())
-    .then(list => {
-      const h = el("historyList");
-      h.innerHTML = "";
+  /* ================= HISTORY (FIXED) ================= */
 
-      list.reverse().forEach(l => {
-        const d = document.createElement("div");
-        d.className = "history-item";
-        d.innerHTML = `
-          <b>${l.ref}</b><br>
-          ${l.subject}<br>
-          <small>${l.date}</small>
-          <button class="delete-btn">🗑</button>
-        `;
+  function fetchHistory() {
+    fetch(URL)
+      .then(r => r.json())
+      .then(list => {
+        const h = el("historyList");
+        h.innerHTML = "";
 
-        d.querySelector(".delete-btn").onclick = e => {
-          e.stopPropagation();
-          if (!confirm(`Delete ${l.ref}?`)) return;
-          deleteLetter(l.rowIndex);
-        };
-
-        h.appendChild(d);
+        list.reverse().forEach(l => {
+          const d = document.createElement("div");
+          d.className = "history-item";
+          d.innerHTML = `
+            <b>${l.ref}</b><br>
+            ${l.subject}<br>
+            <small>${l.date}</small>
+          `;
+          h.appendChild(d);
+        });
       });
-    });
+  }
+  fetchHistory();
 
-  function deleteLetter(row) {
-    fetch(URL, {
+  /* ================= HELPERS ================= */
+
+  async function peekRef() {
+    const r = await fetch(URL, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "delete", rowIndex: row })
-    }).then(() => location.reload());
+      body: JSON.stringify({ action: "peekRef" })
+    });
+    const j = await r.json();
+    el("refInput").value = j.nextRef;
+    return j.nextRef;
   }
 
-  function collectState() {
-    return {
-      to: el("toInput").value,
-      body: el("bodyInput").value,
-      subject: el("subjectInput").value,
-      printGreeting: el("printGreetingCheck").checked
-    };
+  function show(id) {
+    document.querySelectorAll(".view-page")
+      .forEach(v => v.classList.add("hidden-view"));
+    el(id).classList.remove("hidden-view");
+  }
+
+  function formatDate(iso) {
+    const d = new Date(iso);
+    return `${String(d.getDate()).padStart(2, "0")}/${
+      String(d.getMonth() + 1).padStart(2, "0")
+    }/${d.getFullYear()}`;
   }
 
 });
