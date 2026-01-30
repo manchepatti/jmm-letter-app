@@ -1,5 +1,4 @@
-/* ================= RESET ================= */
-
+/* RESET */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -11,40 +10,27 @@ body {
   background: #e5e5e5;
 }
 
-/* ================= PAGE VISIBILITY ================= */
+/* PAGE VISIBILITY */
+.view-page { display: none; }
+.view-page:not(.hidden-view) { display: block; }
+.hidden-view { display: none !important; }
 
-.view-page {
-  display: none;
-  width: 100%;
-}
-
-.view-page:not(.hidden-view) {
-  display: block;
-}
-
-.hidden-view {
-  display: none !important;
-}
-
-/* ================= APP LAYOUT ================= */
-
+/* APP */
 .app-container {
-  padding-bottom: 80px; /* space for bottom nav */
   min-height: 100vh;
+  padding-bottom: 70px;
 }
 
-/* ================= HEADERS ================= */
-
+/* HEADER */
 .dashboard-header {
   background: #2e7d32;
   color: #fff;
-  padding: 14px;
   text-align: center;
+  padding: 14px;
   font-size: 16px;
 }
 
-/* ================= FORMS ================= */
-
+/* FORMS */
 .control-panel {
   padding: 16px;
 }
@@ -55,15 +41,18 @@ input, textarea, select {
   margin-bottom: 12px;
   border-radius: 6px;
   border: 1px solid #ccc;
-  font-size: 14px;
 }
 
-button {
-  cursor: pointer;
+.primary-btn {
+  width: 100%;
+  padding: 12px;
+  background: #2e7d32;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
 }
 
-/* ================= PREVIEW TOOLBAR ================= */
-
+/* PREVIEW */
 .preview-toolbar {
   display: flex;
   justify-content: space-between;
@@ -72,8 +61,7 @@ button {
   border-bottom: 1px solid #ccc;
 }
 
-/* ================= A4 PREVIEW ================= */
-
+/* A4 */
 .a4-wrapper {
   display: flex;
   justify-content: center;
@@ -90,28 +78,52 @@ button {
   box-shadow: 0 0 10px rgba(0,0,0,0.25);
 }
 
-/* ================= LETTERHEAD ================= */
-
+/* LETTERHEAD */
 .letterhead {
-  background: #b9f77d;
-  border: 2px solid #000;
   text-align: center;
-  padding: 10px;
+  margin-bottom: 20px;
 }
 
-.letter-content {
+.lh-line {
+  height: 3px;
+  background: #2e7d32;
+  margin: 6px 0;
+}
+
+.lh-urdu {
+  font-family: "Noto Nastaliq Urdu", serif;
+  font-size: 22px;
+}
+
+.lh-hindi {
+  font-family: "Noto Sans Devanagari", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.lh-english {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.lh-reg {
+  font-size: 12px;
+  color: #444;
+}
+
+/* BODY */
+.letter-body {
   flex: 1;
-  margin-top: 20px;
+  font-size: 14px;
 }
 
 .meta {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
+  margin-bottom: 14px;
 }
 
-/* ================= SIGNATORY ================= */
-
+/* SIGNATORY */
 .signatory-footer {
   border-top: 2px solid #000;
   padding-top: 10px;
@@ -122,23 +134,22 @@ button {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   text-align: center;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .address {
   text-align: center;
-  font-weight: bold;
+  font-weight: 600;
 }
 
-/* ================= BOTTOM NAV (FIXED & VISIBLE) ================= */
-
+/* BOTTOM NAV */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   height: 64px;
-  background: #ffffff;
+  background: #fff;
   border-top: 1px solid #ccc;
   display: flex;
   justify-content: space-around;
@@ -150,27 +161,12 @@ button {
   background: none;
   border: none;
   font-size: 13px;
-  color: #333;
-  text-align: center;
 }
 
-.bottom-nav button:active {
-  transform: scale(0.95);
-}
-
-/* ================= PRINT ================= */
-
+/* PRINT */
 @media print {
-  body {
-    background: none;
-  }
-
+  body { background: none; }
   .bottom-nav,
-  .preview-toolbar {
-    display: none !important;
-  }
-
-  .a4-page {
-    box-shadow: none;
-  }
+  .preview-toolbar { display: none; }
+  .a4-page { box-shadow: none; }
 }
