@@ -3,9 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>JMM Letter App</title>
 
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2e7d32">
+
+<!-- STYLES -->
 <link rel="stylesheet" href="styles.css">
+
+<!-- FONTS -->
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+Devanagari&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
 </head>
 
@@ -27,6 +35,7 @@
     <div class="dashboard-header">Create Letter</div>
 
     <div class="control-panel">
+
       <label>Letterhead</label>
       <select id="letterheadSelect">
         <option value="manche">Manche</option>
@@ -57,7 +66,6 @@
   <!-- ================= SETTINGS ================= -->
   <div id="settingsView" class="view-page hidden-view">
     <div class="dashboard-header">Settings</div>
-
     <div class="control-panel">
       <h3>Signatories</h3>
 
@@ -84,17 +92,22 @@
         <!-- LETTERHEAD -->
         <div class="letterhead">
           <div class="lh-line"></div>
+
           <div class="lh-urdu">جماعت المسلمین مانچے</div>
           <div class="lh-hindi">जमातुल मुस्लिमीन मणचे</div>
           <div class="lh-english" id="lhEnglish">
             Jamatul Muslimeen Manche
           </div>
-          <div class="lh-reg">Reg. No. F-3495/10/08/10</div>
+          <div class="lh-reg">
+            Reg. No. F-3495/10/08/10
+          </div>
+
           <div class="lh-line"></div>
         </div>
 
         <!-- BODY -->
         <div class="letter-body">
+
           <div class="meta">
             <div><b>Ref:</b> <span id="refText"></span></div>
             <div><b>Date:</b> <span id="dateText"></span></div>
@@ -111,6 +124,7 @@
           </div>
 
           <div class="matter-block" id="letterBody"></div>
+
         </div>
 
         <!-- SIGNATORY -->
@@ -128,6 +142,12 @@
 
 </div>
 
+<!-- ================= LOADER ================= -->
+<div id="loader" class="loader hidden">
+  <div class="spinner"></div>
+  <div id="loaderText">Loading…</div>
+</div>
+
 <!-- ================= BOTTOM NAV ================= -->
 <div class="bottom-nav">
   <button data-target="dashboardView">🏠 Dashboard</button>
@@ -135,6 +155,20 @@
   <button data-target="settingsView">⚙️ Settings</button>
 </div>
 
+<!-- MAIN SCRIPT -->
 <script src="script.js"></script>
+
+<!-- SERVICE WORKER REGISTER -->
+<script>
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./service-worker.js")
+      .then(() => console.log("Service Worker registered"))
+      .catch(err => console.error("SW registration failed", err));
+  });
+}
+</script>
+
 </body>
 </html>
