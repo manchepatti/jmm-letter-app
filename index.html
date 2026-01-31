@@ -3,37 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>JMM Letter App</title>
 
-<!-- PWA -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2e7d32">
 
-<!-- STYLES -->
 <link rel="stylesheet" href="styles.css">
-
-<!-- FONTS -->
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans&family=Noto+Sans+Devanagari&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
+<!-- ================= APP ================= -->
 <div class="app-container">
 
-  <!-- ================= DASHBOARD ================= -->
+  <!-- DASHBOARD -->
   <div id="dashboardView" class="view-page">
     <div class="dashboard-header">Dashboard</div>
     <div class="control-panel">
       <h3>Recent Letters</h3>
-      <div id="historyList"></div>
+      <div id="historyList" class="history-cards"></div>
     </div>
   </div>
 
-  <!-- ================= CREATE LETTER ================= -->
+  <!-- CREATE -->
   <div id="createLetterView" class="view-page hidden-view">
     <div class="dashboard-header">Create Letter</div>
-
     <div class="control-panel">
 
       <label>Letterhead</label>
@@ -63,111 +58,74 @@
     </div>
   </div>
 
-  <!-- ================= SETTINGS ================= -->
+  <!-- SETTINGS -->
   <div id="settingsView" class="view-page hidden-view">
     <div class="dashboard-header">Settings</div>
     <div class="control-panel">
-      <h3>Signatories</h3>
-
-      <textarea id="signatoryInput" rows="6"
-        placeholder="अध्यक्ष | श्री. असरफ सोलकर"></textarea>
-
-      <button id="saveSettingsBtn" class="primary-btn">
-        Save Settings
-      </button>
+      <textarea id="signatoryInput" rows="6"></textarea>
+      <button id="saveSettingsBtn" class="primary-btn">Save</button>
     </div>
   </div>
 
-  <!-- ================= PREVIEW ================= -->
-<div id="previewView" class="view-page hidden-view">
+</div>
+
+<!-- ================= PREVIEW OVERLAY (KEY FIX) ================= -->
+<div id="previewOverlay" class="preview-overlay hidden">
 
   <div class="preview-toolbar">
     <button id="editLetterBtn">Edit</button>
     <button onclick="window.print()">Print</button>
+    <button onclick="closePreview()">✕</button>
   </div>
 
-  <div class="a4-wrapper">
-    <div class="a4-canvas">
-      <div class="a4-page">
+  <div class="preview-scroll">
+    <div class="a4-page">
 
-        <!-- LETTERHEAD -->
-        <div class="letterhead">
-          <div class="lh-line"></div>
-
-          <div class="lh-urdu">جماعت المسلمین مانچے</div>
-          <div class="lh-hindi">जमातुल मुस्लिमीन मणचे</div>
-          <div class="lh-english" id="lhEnglish">
-            Jamatul Muslimeen Manche
-          </div>
-          <div class="lh-reg">
-            Reg. No. F-3495/10/08/10
-          </div>
-
-          <div class="lh-line"></div>
-        </div>
-
-        <!-- BODY -->
-        <div class="letter-body">
-
-          <div class="meta">
-            <div><b>Ref:</b> <span id="refText"></span></div>
-            <div><b>Date:</b> <span id="dateText"></span></div>
-          </div>
-
-          <div class="to-block">
-            <b>To,</b><br>
-            <span id="toText"></span>
-          </div>
-
-          <div class="subject-block">
-            <b>Subject:</b>
-            <span id="subjectText"></span>
-          </div>
-
-          <div class="matter-block" id="letterBody"></div>
-
-        </div>
-
-        <!-- SIGNATORY -->
-        <div class="signatory-footer">
-          <div id="signatoryBlock"></div>
-          <div class="address">
-            PERMANENT ADD: AT POST MANCHE, TALUKA DEVGAD,
-            DISTRICT SINDHUDURG, PIN – 416811
-          </div>
-        </div>
-
+      <!-- LETTERHEAD -->
+      <div class="letterhead">
+        <div class="lh-line"></div>
+        <div class="lh-urdu">جماعت المسلمین مانچے</div>
+        <div class="lh-hindi">जमातुल मुस्लिमीन मणचे</div>
+        <div class="lh-english" id="lhEnglish">Jamatul Muslimeen Manche</div>
+        <div class="lh-reg">Reg. No. F-3495/10/08/10</div>
+        <div class="lh-line"></div>
       </div>
+
+      <!-- BODY -->
+      <div class="letter-body">
+        <div class="meta">
+          <div><b>Ref:</b> <span id="refText"></span></div>
+          <div><b>Date:</b> <span id="dateText"></span></div>
+        </div>
+
+        <div class="to-block"><b>To,</b><br><span id="toText"></span></div>
+        <div class="subject-block"><b>Subject:</b> <span id="subjectText"></span></div>
+        <div class="matter-block" id="letterBody"></div>
+      </div>
+
+      <div class="signatory-footer">
+        <div id="signatoryBlock"></div>
+        <div class="address">
+          PERMANENT ADD: AT POST MANCHE, TALUKA DEVGAD,
+          DISTRICT SINDHUDURG, PIN – 416811
+        </div>
+      </div>
+
     </div>
   </div>
-
 </div>
 
-<!-- ================= LOADER ================= -->
-<div id="loader" class="loader hidden">
-  <div class="spinner"></div>
-  <div id="loaderText">Loading…</div>
-</div>
-
-<!-- ================= BOTTOM NAV ================= -->
+<!-- BOTTOM NAV -->
 <div class="bottom-nav">
   <button data-target="dashboardView">🏠 Dashboard</button>
   <button data-target="createLetterView">➕ New</button>
   <button data-target="settingsView">⚙️ Settings</button>
 </div>
 
-<!-- MAIN SCRIPT -->
 <script src="script.js"></script>
-
-<!-- SERVICE WORKER REGISTER -->
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./service-worker.js")
-      .then(() => console.log("Service Worker registered"))
-      .catch(err => console.error("SW registration failed", err));
-  });
+function closePreview() {
+  document.getElementById("previewOverlay").classList.add("hidden");
 }
 </script>
 
