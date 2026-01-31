@@ -34,7 +34,7 @@
       </select>
 
       <label>Ref No</label>
-      <input id="refInput" readonly placeholder="Fetching…">
+      <input id="refInput" readonly>
 
       <label>Date</label>
       <input type="date" id="dateInput">
@@ -54,12 +54,64 @@
     </div>
   </div>
 
-</div>
+  <!-- PREVIEW -->
+  <div id="previewView" class="view-page hidden-view">
 
-<!-- LOADER -->
-<div id="loader" class="loader hidden">
-  <div class="spinner"></div>
-  <div id="loaderText">Loading…</div>
+    <div class="preview-toolbar">
+      <button id="editLetterBtn">Edit</button>
+      <button onclick="window.print()">Print</button>
+    </div>
+
+    <div class="a4-wrapper">
+      <div class="a4-page">
+
+        <!-- LETTERHEAD -->
+        <div class="letterhead">
+          <div class="lh-line"></div>
+          <div class="lh-urdu">جماعت المسلمین مانچے</div>
+          <div class="lh-hindi">जमातुल मुस्लिमीन मणचे</div>
+          <div class="lh-english" id="lhEnglish">
+            Jamatul Muslimeen Manche
+          </div>
+          <div class="lh-reg">Reg. No. F-3495/10/08/10</div>
+          <div class="lh-line"></div>
+        </div>
+
+        <!-- LETTER BODY -->
+        <div class="letter-body">
+
+          <div class="meta">
+            <div><b>Ref:</b> <span id="refText"></span></div>
+            <div><b>Date:</b> <span id="dateText"></span></div>
+          </div>
+
+          <div class="to-block">
+            <b>To,</b><br>
+            <span id="toText"></span>
+          </div>
+
+          <div class="subject-block">
+            <b>Subject:</b>
+            <span id="subjectText"></span>
+          </div>
+
+          <div class="matter-block" id="letterBody"></div>
+
+        </div>
+
+        <!-- SIGNATORY -->
+        <div class="signatory-footer">
+          <div id="signatoryBlock"></div>
+          <div class="address">
+            PERMANENT ADD: AT POST MANCHE, TALUKA DEVGAD,
+            DISTRICT SINDHUDURG, PIN – 416811
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- BOTTOM NAV -->
