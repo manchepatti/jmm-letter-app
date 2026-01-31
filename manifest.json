@@ -1,11 +1,10 @@
 {
-  "name": "Jamatul Muslimeen Manche",
+  "name": "JMM Letter App",
   "short_name": "JMM Letters",
   "start_url": "./index.html",
-  "scope": "./",
   "display": "standalone",
-  "background_color": "#68c751",
-  "theme_color": "#68c751",
+  "background_color": "#ffffff",
+  "theme_color": "#2e7d32",
   "orientation": "portrait",
   "icons": [
     {
