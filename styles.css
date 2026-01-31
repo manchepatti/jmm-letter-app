@@ -1,24 +1,29 @@
-/* RESET */
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* ================= RESET ================= */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 body {
   font-family: "Noto Sans", sans-serif;
   background: #e5e5e5;
   color: #000;
+  overflow-x: hidden;
 }
 
-/* PAGE VISIBILITY */
+/* ================= PAGE VISIBILITY ================= */
 .view-page { display: none; }
 .view-page:not(.hidden-view) { display: block; }
 .hidden-view { display: none !important; }
 
-/* APP */
+/* ================= APP ================= */
 .app-container {
   min-height: 100vh;
-  padding-bottom: 70px;
+  padding-bottom: 72px;
 }
 
-/* HEADER */
+/* ================= HEADER ================= */
 .dashboard-header {
   background: #2e7d32;
   color: #fff;
@@ -27,8 +32,10 @@ body {
   font-size: 16px;
 }
 
-/* FORMS */
-.control-panel { padding: 16px; }
+/* ================= FORMS ================= */
+.control-panel {
+  padding: 16px;
+}
 
 input, textarea, select {
   width: 100%;
@@ -47,33 +54,52 @@ input, textarea, select {
   border-radius: 8px;
 }
 
-/* PREVIEW */
+/* ================= PREVIEW TOOLBAR ================= */
 .preview-toolbar {
   display: flex;
   justify-content: space-between;
   padding: 10px;
-  background: #fff;
+  background: #ffffff;
   border-bottom: 1px solid #ccc;
 }
 
-/* A4 PAGE */
+/* ================= A4 PREVIEW (CRITICAL FIX) ================= */
+
 .a4-wrapper {
+  width: 100%;
+  overflow-x: auto;
   display: flex;
   justify-content: center;
-  padding: 20px;
+  padding: 16px 0 24px;
 }
 
 .a4-page {
   width: 210mm;
   height: 297mm;
-  background: #fff;
+  background: #ffffff;
   padding: 22mm;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+  box-shadow: 0 0 14px rgba(0,0,0,0.25);
+
+  /* 👇 THIS IS THE KEY */
+  transform-origin: top center;
 }
 
-/* LETTERHEAD */
+/* ================= MOBILE SCALE (VISUAL ONLY) ================= */
+@media (max-width: 768px) {
+  .a4-page {
+    transform: scale(0.78);
+  }
+}
+
+@media (max-width: 480px) {
+  .a4-page {
+    transform: scale(0.65);
+  }
+}
+
+/* ================= LETTERHEAD ================= */
 .letterhead {
   text-align: center;
   margin-bottom: 18px;
@@ -99,7 +125,6 @@ input, textarea, select {
 .lh-english {
   font-size: 16px;
   font-weight: 700;
-  margin-top: 2px;
 }
 
 .lh-reg {
@@ -108,7 +133,7 @@ input, textarea, select {
   margin-top: 4px;
 }
 
-/* LETTER BODY POLISH */
+/* ================= LETTER BODY ================= */
 .letter-body {
   flex: 1;
   font-size: 14.5px;
@@ -140,7 +165,7 @@ input, textarea, select {
   white-space: pre-line;
 }
 
-/* SIGNATORY */
+/* ================= SIGNATORY ================= */
 .signatory-footer {
   border-top: 2px solid #000;
   padding-top: 12px;
@@ -159,24 +184,63 @@ input, textarea, select {
   font-weight: 600;
 }
 
-/* NAV */
+/* ================= BOTTOM NAV ================= */
 .bottom-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   height: 64px;
-  background: #fff;
+  background: #ffffff;
   border-top: 1px solid #ccc;
   display: flex;
   justify-content: space-around;
   align-items: center;
+  z-index: 9999;
 }
 
-/* PRINT */
+/* ================= LOADER ================= */
+.loader {
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.hidden { display: none; }
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #c8e6c9;
+  border-top: 4px solid #2e7d32;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ================= PRINT (REAL A4) ================= */
 @media print {
   body { background: none; }
+
   .bottom-nav,
-  .preview-toolbar { display: none; }
-  .a4-page { box-shadow: none; }
+  .preview-toolbar {
+    display: none !important;
+  }
+
+  .a4-wrapper {
+    padding: 0;
+  }
+
+  .a4-page {
+    transform: none !important; /* REAL SIZE */
+    box-shadow: none;
+  }
 }
