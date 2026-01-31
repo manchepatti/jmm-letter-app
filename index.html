@@ -14,23 +14,22 @@
 
 <body>
 
-<!-- ================= APP ================= -->
-<div class="app-container">
+<!-- ================= MAIN APP ================= -->
+<div class="app">
 
   <!-- DASHBOARD -->
-  <div id="dashboardView" class="view-page">
-    <div class="dashboard-header">Dashboard</div>
-    <div class="control-panel">
+  <section id="dashboardView" class="view active">
+    <header class="topbar">Dashboard</header>
+    <main class="content">
       <h3>Recent Letters</h3>
-      <div id="historyList" class="history-cards"></div>
-    </div>
-  </div>
+      <div id="historyList" class="history"></div>
+    </main>
+  </section>
 
   <!-- CREATE -->
-  <div id="createLetterView" class="view-page hidden-view">
-    <div class="dashboard-header">Create Letter</div>
-    <div class="control-panel">
-
+  <section id="createLetterView" class="view">
+    <header class="topbar">Create Letter</header>
+    <main class="content">
       <label>Letterhead</label>
       <select id="letterheadSelect">
         <option value="manche">Manche</option>
@@ -52,82 +51,77 @@
       <label>Matter</label>
       <textarea id="bodyInput" rows="6"></textarea>
 
-      <button id="generatePreviewBtn" class="primary-btn">
+      <button id="generatePreviewBtn" class="btn">
         Generate Preview
       </button>
-    </div>
-  </div>
+    </main>
+  </section>
 
   <!-- SETTINGS -->
-  <div id="settingsView" class="view-page hidden-view">
-    <div class="dashboard-header">Settings</div>
-    <div class="control-panel">
+  <section id="settingsView" class="view">
+    <header class="topbar">Settings</header>
+    <main class="content">
       <textarea id="signatoryInput" rows="6"></textarea>
-      <button id="saveSettingsBtn" class="primary-btn">Save</button>
-    </div>
-  </div>
+      <button class="btn">Save</button>
+    </main>
+  </section>
 
 </div>
 
-<!-- ================= PREVIEW OVERLAY (KEY FIX) ================= -->
-<div id="previewOverlay" class="preview-overlay hidden">
+<!-- ================= PREVIEW VIEWER ================= -->
+<div id="previewViewer" class="preview hidden">
 
-  <div class="preview-toolbar">
+  <div class="preview-header">
     <button id="editLetterBtn">Edit</button>
+    <span>Preview</span>
     <button onclick="window.print()">Print</button>
-    <button onclick="closePreview()">✕</button>
   </div>
 
-  <div class="preview-scroll">
-    <div class="a4-page">
+  <div class="preview-body">
 
-      <!-- LETTERHEAD -->
+    <!-- A4 DOCUMENT -->
+    <div class="page-a4">
+
       <div class="letterhead">
-        <div class="lh-line"></div>
-        <div class="lh-urdu">جماعت المسلمین مانچے</div>
-        <div class="lh-hindi">जमातुल मुस्लिमीन मणचे</div>
-        <div class="lh-english" id="lhEnglish">Jamatul Muslimeen Manche</div>
-        <div class="lh-reg">Reg. No. F-3495/10/08/10</div>
-        <div class="lh-line"></div>
+        <div class="line"></div>
+        <div class="urdu">جماعت المسلمین مانچے</div>
+        <div class="hindi">जमातुल मुस्लिमीन मणचे</div>
+        <div class="english" id="lhEnglish">Jamatul Muslimeen Manche</div>
+        <div class="reg">Reg. No. F-3495/10/08/10</div>
+        <div class="line"></div>
       </div>
 
-      <!-- BODY -->
-      <div class="letter-body">
+      <div class="body">
         <div class="meta">
-          <div><b>Ref:</b> <span id="refText"></span></div>
-          <div><b>Date:</b> <span id="dateText"></span></div>
+          <span><b>Ref:</b> <span id="refText"></span></span>
+          <span><b>Date:</b> <span id="dateText"></span></span>
         </div>
 
-        <div class="to-block"><b>To,</b><br><span id="toText"></span></div>
-        <div class="subject-block"><b>Subject:</b> <span id="subjectText"></span></div>
-        <div class="matter-block" id="letterBody"></div>
+        <div class="to"><b>To,</b><br><span id="toText"></span></div>
+        <div class="subject"><b>Subject:</b> <span id="subjectText"></span></div>
+        <div class="matter" id="letterBody"></div>
       </div>
 
-      <div class="signatory-footer">
+      <footer class="sign">
         <div id="signatoryBlock"></div>
-        <div class="address">
+        <div class="addr">
           PERMANENT ADD: AT POST MANCHE, TALUKA DEVGAD,
           DISTRICT SINDHUDURG, PIN – 416811
         </div>
-      </div>
+      </footer>
 
     </div>
+
   </div>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="bottom-nav">
-  <button data-target="dashboardView">🏠 Dashboard</button>
-  <button data-target="createLetterView">➕ New</button>
-  <button data-target="settingsView">⚙️ Settings</button>
-</div>
+<!-- NAV -->
+<nav class="nav">
+  <button data-target="dashboardView">🏠</button>
+  <button data-target="createLetterView">➕</button>
+  <button data-target="settingsView">⚙️</button>
+</nav>
 
 <script src="script.js"></script>
-<script>
-function closePreview() {
-  document.getElementById("previewOverlay").classList.add("hidden");
-}
-</script>
-
 </body>
 </html>
