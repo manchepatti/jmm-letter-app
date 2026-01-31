@@ -4,19 +4,27 @@
 body {
   font-family: "Noto Sans", sans-serif;
   background: #e5e5e5;
+  color: #000;
 }
 
-/* PAGES */
+/* PAGE VISIBILITY */
 .view-page { display: none; }
 .view-page:not(.hidden-view) { display: block; }
 .hidden-view { display: none !important; }
+
+/* APP */
+.app-container {
+  min-height: 100vh;
+  padding-bottom: 70px;
+}
 
 /* HEADER */
 .dashboard-header {
   background: #2e7d32;
   color: #fff;
-  padding: 14px;
   text-align: center;
+  padding: 14px;
+  font-size: 16px;
 }
 
 /* FORMS */
@@ -39,7 +47,119 @@ input, textarea, select {
   border-radius: 8px;
 }
 
-/* BOTTOM NAV */
+/* PREVIEW */
+.preview-toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #fff;
+  border-bottom: 1px solid #ccc;
+}
+
+/* A4 PAGE */
+.a4-wrapper {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.a4-page {
+  width: 210mm;
+  height: 297mm;
+  background: #fff;
+  padding: 22mm;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+}
+
+/* LETTERHEAD */
+.letterhead {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.lh-line {
+  height: 3px;
+  background: #2e7d32;
+  margin: 6px 0;
+}
+
+.lh-urdu {
+  font-family: "Noto Nastaliq Urdu", serif;
+  font-size: 22px;
+}
+
+.lh-hindi {
+  font-family: "Noto Sans Devanagari", sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.lh-english {
+  font-size: 16px;
+  font-weight: 700;
+  margin-top: 2px;
+}
+
+.lh-reg {
+  font-size: 12px;
+  color: #444;
+  margin-top: 4px;
+}
+
+/* LETTER BODY POLISH */
+.letter-body {
+  flex: 1;
+  font-size: 14.5px;
+  line-height: 1.7;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  font-size: 13px;
+}
+
+.to-block {
+  margin-bottom: 18px;
+}
+
+.subject-block {
+  margin-bottom: 22px;
+  font-weight: 600;
+}
+
+.subject-block span {
+  margin-left: 6px;
+}
+
+.matter-block {
+  text-align: justify;
+  white-space: pre-line;
+}
+
+/* SIGNATORY */
+.signatory-footer {
+  border-top: 2px solid #000;
+  padding-top: 12px;
+  font-size: 12px;
+}
+
+#signatoryBlock {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.address {
+  text-align: center;
+  font-weight: 600;
+}
+
+/* NAV */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -53,35 +173,10 @@ input, textarea, select {
   align-items: center;
 }
 
-/* LOADER */
-.loader {
-  position: fixed;
-  inset: 0;
-  background: rgba(255,255,255,0.9);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 99999;
-}
-
-.hidden { display: none; }
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #c8e6c9;
-  border-top: 4px solid #2e7d32;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-#loaderText {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #333;
+/* PRINT */
+@media print {
+  body { background: none; }
+  .bottom-nav,
+  .preview-toolbar { display: none; }
+  .a4-page { box-shadow: none; }
 }
