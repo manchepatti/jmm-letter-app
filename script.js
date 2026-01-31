@@ -1,12 +1,3 @@
-function formatDate(d) {
-  if (!d) return "";
-  const date = new Date(d);
-  return date.toLocaleDateString("en-GB");
-}
-
-function safeText(v) {
-  return v === null || v === undefined ? "" : String(v);
-}
 document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= CONFIG ================= */
@@ -16,32 +7,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const el = id => document.getElementById(id);
 
-  /* ================= PAGE SWITCH ================= */
+  /* ================= HELPERS ================= */
 
   function show(viewId) {
-    document.querySelectorAll(".view-page").forEach(v =>
-      v.classList.add("hidden-view")
-    );
+    document.querySelectorAll(".view-page")
+      .forEach(v => v.classList.add("hidden-view"));
     const page = el(viewId);
     if (page) page.classList.remove("hidden-view");
   }
 
-  /* ================= LOADER ================= */
-
   function showLoader(text) {
+    if (!el("loader")) return;
     el("loaderText").textContent = text || "Loading…";
     el("loader").classList.remove("hidden");
   }
 
   function hideLoader() {
+    if (!el("loader")) return;
     el("loader").classList.add("hidden");
+  }
+
+  function formatDate(d) {
+    if (!d) return "";
+    return new Date(d).toLocaleDateString("en-GB");
+  }
+
+  function toInputDate(d) {
+    if (!d) return "";
+    return new Date(d).toISOString().split("T")[0];
+  }
+
+  function safeText(v) {
+    return v === null || v === undefined ? "" : String(v);
   }
 
   /* ================= INIT ================= */
 
   show("dashboardView");
   setToday();
-  fetchHistory(); // 🔑 MUST RUN
+  fetchHistory();
 
   /* ================= NAV ================= */
 
@@ -53,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       show(target);
 
       if (target === "createLetterView") {
-        fetchRef(); // 🔑 MUST RUN
+        fetchRef();
       }
     };
   });
@@ -61,8 +65,10 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= DATE ================= */
 
   function setToday() {
-    const d = new Date().toISOString().split("T")[0];
-    if (el("dateInput")) el("dateInput").value = d;
+    if (el("dateInput")) {
+      el("dateInput").value =
+        new Date().toISOString().split("T")[0];
+    }
   }
 
   /* ================= FETCH REF ================= */
@@ -77,11 +83,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       const j = await r.json();
-
       el("refInput").value = j.nextRef || "";
     } catch (e) {
+      console.error("Ref fetch failed", e);
       alert("Failed to fetch Ref No");
-      console.error(e);
     } finally {
       hideLoader();
     }
@@ -98,32 +103,55 @@ document.addEventListener("DOMContentLoaded", () => {
       const h = el("historyList");
       h.innerHTML = "";
 
-      if (!Array.isArray(list)) {
+      if (!Array.isArray(list) || list.length === 0) {
         h.innerHTML = "<p>No letters found</p>";
         return;
       }
 
       list.reverse().forEach(l => {
-        const div = document.createElement("div");
-        div.style.padding = "8px";
-        div.style.borderBottom = "1px solid #ddd";
-        div.textContent = `${l.ref || ""} — ${l.subject || ""}`;
-        h.appendChild(div);
+        const card = document.createElement("div");
+        card.style.padding = "10px";
+        card.style.borderBottom = "1px solid #ddd";
+
+        card.innerHTML = `
+          <b>${safeText(l.ref)}</b><br>
+          ${safeText(l.subject)}<br>
+          <small>${formatDate(l.date)}</small>
+        `;
+
+        card.onclick = () => loadForEdit(l);
+
+        h.appendChild(card);
       });
 
     } catch (e) {
+      console.error("History fetch failed", e);
       alert("Failed to load recent letters");
-      console.error(e);
     } finally {
       hideLoader();
     }
   }
 
+  /* ================= LOAD FOR EDIT ================= */
+
+  function loadForEdit(l) {
+    show("createLetterView");
+
+    el("refInput").value = safeText(l.ref);
+    el("dateInput").value = toInputDate(l.date);
+    el("subjectInput").value = safeText(l.subject);
+    el("toInput").value = safeText(l.address);
+    el("bodyInput").value = safeText(l.content);
+  }
+
   /* ================= PREVIEW ================= */
 
   el("generatePreviewBtn").onclick = () => {
+
     el("refText").textContent = el("refInput").value;
-    el("dateText").textContent = el("dateInput").value;
+    el("dateText").textContent =
+      formatDate(el("dateInput").value);
+
     el("toText").textContent = el("toInput").value;
     el("subjectText").textContent = el("subjectInput").value;
     el("letterBody").textContent = el("bodyInput").value;
@@ -137,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     show("previewView");
   };
 
-  /* ================= EDIT ================= */
+  /* ================= EDIT FROM PREVIEW ================= */
 
   el("editLetterBtn")?.addEventListener("click", () => {
     show("createLetterView");
