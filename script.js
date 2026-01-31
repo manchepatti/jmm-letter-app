@@ -1,3 +1,12 @@
+function formatDate(d) {
+  if (!d) return "";
+  const date = new Date(d);
+  return date.toLocaleDateString("en-GB");
+}
+
+function safeText(v) {
+  return v === null || v === undefined ? "" : String(v);
+}
 document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= CONFIG ================= */
