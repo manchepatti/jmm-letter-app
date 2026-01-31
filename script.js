@@ -7,13 +7,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const el = id => document.getElementById(id);
 
+  let currentRowIndex = null;
+
   /* ================= HELPERS ================= */
 
   function show(viewId) {
     document.querySelectorAll(".view-page")
       .forEach(v => v.classList.add("hidden-view"));
-    const page = el(viewId);
-    if (page) page.classList.remove("hidden-view");
+    el(viewId)?.classList.remove("hidden-view");
   }
 
   function showLoader(text) {
@@ -37,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return new Date(d).toISOString().split("T")[0];
   }
 
-  function safeText(v) {
+  function safe(v) {
     return v === null || v === undefined ? "" : String(v);
   }
 
@@ -53,25 +54,19 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.onclick = () => {
       const target = btn.dataset.target;
       if (!target) return;
-
       show(target);
-
-      if (target === "createLetterView") {
-        fetchRef();
-      }
+      if (target === "createLetterView") fetchRef();
     };
   });
 
   /* ================= DATE ================= */
 
   function setToday() {
-    if (el("dateInput")) {
-      el("dateInput").value =
-        new Date().toISOString().split("T")[0];
-    }
+    el("dateInput").value =
+      new Date().toISOString().split("T")[0];
   }
 
-  /* ================= FETCH REF ================= */
+  /* ================= REF ================= */
 
   async function fetchRef() {
     showLoader("Fetching Ref No…");
@@ -81,18 +76,14 @@ document.addEventListener("DOMContentLoaded", () => {
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify({ action: "peekRef" })
       });
-
       const j = await r.json();
       el("refInput").value = j.nextRef || "";
-    } catch (e) {
-      console.error("Ref fetch failed", e);
-      alert("Failed to fetch Ref No");
     } finally {
       hideLoader();
     }
   }
 
-  /* ================= FETCH HISTORY ================= */
+  /* ================= HISTORY ================= */
 
   async function fetchHistory() {
     showLoader("Loading recent letters…");
@@ -110,48 +101,74 @@ document.addEventListener("DOMContentLoaded", () => {
 
       list.reverse().forEach(l => {
         const card = document.createElement("div");
-        card.style.padding = "10px";
+        card.style.padding = "12px";
         card.style.borderBottom = "1px solid #ddd";
+        card.style.display = "flex";
+        card.style.justifyContent = "space-between";
+        card.style.alignItems = "center";
 
         card.innerHTML = `
-          <b>${safeText(l.ref)}</b><br>
-          ${safeText(l.subject)}<br>
-          <small>${formatDate(l.date)}</small>
+          <div>
+            <b>${safe(l.ref)}</b><br>
+            ${safe(l.subject)}<br>
+            <small>${formatDate(l.date)}</small>
+          </div>
+          <div>
+            <button class="hist-btn edit">✏️</button>
+            <button class="hist-btn preview">👁</button>
+            <button class="hist-btn delete">🗑</button>
+          </div>
         `;
 
-        card.onclick = () => loadForEdit(l);
+        card.querySelector(".edit").onclick = () => loadForEdit(l);
+        card.querySelector(".preview").onclick = () => {
+          loadForEdit(l);
+          generatePreview();
+        };
+        card.querySelector(".delete").onclick = () => {
+          if (confirm(`Delete ${l.ref}?`)) deleteLetter(l.rowIndex);
+        };
 
         h.appendChild(card);
       });
 
-    } catch (e) {
-      console.error("History fetch failed", e);
-      alert("Failed to load recent letters");
     } finally {
       hideLoader();
     }
   }
 
-  /* ================= LOAD FOR EDIT ================= */
+  /* ================= EDIT ================= */
 
   function loadForEdit(l) {
-    show("createLetterView");
+    currentRowIndex = l.rowIndex;
 
-    el("refInput").value = safeText(l.ref);
+    el("refInput").value = safe(l.ref);
     el("dateInput").value = toInputDate(l.date);
-    el("subjectInput").value = safeText(l.subject);
-    el("toInput").value = safeText(l.address);
-    el("bodyInput").value = safeText(l.content);
+    el("subjectInput").value = safe(l.subject);
+    el("toInput").value = safe(l.address);
+    el("bodyInput").value = safe(l.content);
+
+    show("createLetterView");
+  }
+
+  /* ================= DELETE ================= */
+
+  async function deleteLetter(rowIndex) {
+    showLoader("Deleting…");
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action: "delete", rowIndex })
+    });
+    fetchHistory();
+    hideLoader();
   }
 
   /* ================= PREVIEW ================= */
 
-  el("generatePreviewBtn").onclick = () => {
-
+  function generatePreview() {
     el("refText").textContent = el("refInput").value;
-    el("dateText").textContent =
-      formatDate(el("dateInput").value);
-
+    el("dateText").textContent = formatDate(el("dateInput").value);
     el("toText").textContent = el("toInput").value;
     el("subjectText").textContent = el("subjectInput").value;
     el("letterBody").textContent = el("bodyInput").value;
@@ -163,9 +180,9 @@ document.addEventListener("DOMContentLoaded", () => {
         : "Jamatul Muslimeen Manche";
 
     show("previewView");
-  };
+  }
 
-  /* ================= EDIT FROM PREVIEW ================= */
+  el("generatePreviewBtn").onclick = generatePreview;
 
   el("editLetterBtn")?.addEventListener("click", () => {
     show("createLetterView");
