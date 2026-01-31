@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ================= CONFIG ================= */
-
   const SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbwGj5sUuVii6WYen7Gp6kER-8CbPBqp9yXK_q0th3i7vaqbvxUtbM3dyQszmHNZzSwSiw/exec";
 
@@ -18,13 +16,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function showLoader(text) {
-    if (!el("loader")) return;
     el("loaderText").textContent = text || "Loading…";
     el("loader").classList.remove("hidden");
   }
 
   function hideLoader() {
-    if (!el("loader")) return;
     el("loader").classList.add("hidden");
   }
 
@@ -53,7 +49,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".bottom-nav button").forEach(btn => {
     btn.onclick = () => {
       const target = btn.dataset.target;
-      if (!target) return;
       show(target);
       if (target === "createLetterView") fetchRef();
     };
@@ -83,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* ================= HISTORY ================= */
+  /* ================= HISTORY (WITH PREVIEW BUTTON) ================= */
 
   async function fetchHistory() {
     showLoader("Loading recent letters…");
@@ -101,11 +96,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       list.reverse().forEach(l => {
         const card = document.createElement("div");
-        card.style.padding = "12px";
-        card.style.borderBottom = "1px solid #ddd";
         card.style.display = "flex";
         card.style.justifyContent = "space-between";
         card.style.alignItems = "center";
+        card.style.padding = "12px";
+        card.style.borderBottom = "1px solid #ddd";
 
         card.innerHTML = `
           <div>
@@ -114,17 +109,20 @@ document.addEventListener("DOMContentLoaded", () => {
             <small>${formatDate(l.date)}</small>
           </div>
           <div>
-            <button class="hist-btn edit">✏️</button>
             <button class="hist-btn preview">👁</button>
+            <button class="hist-btn edit">✏️</button>
             <button class="hist-btn delete">🗑</button>
           </div>
         `;
 
-        card.querySelector(".edit").onclick = () => loadForEdit(l);
         card.querySelector(".preview").onclick = () => {
-          loadForEdit(l);
-          generatePreview();
+          loadForPreview(l);
         };
+
+        card.querySelector(".edit").onclick = () => {
+          loadForEdit(l);
+        };
+
         card.querySelector(".delete").onclick = () => {
           if (confirm(`Delete ${l.ref}?`)) deleteLetter(l.rowIndex);
         };
@@ -137,7 +135,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  /* ================= EDIT ================= */
+  /* ================= LOAD FOR PREVIEW (NO EDIT MODE) ================= */
+
+  function loadForPreview(l) {
+    el("refText").textContent = safe(l.ref);
+    el("dateText").textContent = formatDate(l.date);
+    el("toText").textContent = safe(l.address);
+    el("subjectText").textContent = safe(l.subject);
+    el("letterBody").textContent = safe(l.content);
+
+    show("previewView");
+  }
+
+  /* ================= LOAD FOR EDIT ================= */
 
   function loadForEdit(l) {
     currentRowIndex = l.rowIndex;
@@ -164,25 +174,20 @@ document.addEventListener("DOMContentLoaded", () => {
     hideLoader();
   }
 
-  /* ================= PREVIEW ================= */
+  /* ================= CREATE PAGE PREVIEW BUTTON ================= */
 
-  function generatePreview() {
+  el("generatePreviewBtn").onclick = () => {
     el("refText").textContent = el("refInput").value;
-    el("dateText").textContent = formatDate(el("dateInput").value);
+    el("dateText").textContent =
+      formatDate(el("dateInput").value);
     el("toText").textContent = el("toInput").value;
     el("subjectText").textContent = el("subjectInput").value;
     el("letterBody").textContent = el("bodyInput").value;
 
-    const lh = el("letterheadSelect").value;
-    el("lhEnglish").textContent =
-      lh === "mumbai"
-        ? "Jamatul Muslimeen Manche – Mumbai"
-        : "Jamatul Muslimeen Manche";
-
     show("previewView");
-  }
+  };
 
-  el("generatePreviewBtn").onclick = generatePreview;
+  /* ================= EDIT FROM PREVIEW ================= */
 
   el("editLetterBtn")?.addEventListener("click", () => {
     show("createLetterView");
