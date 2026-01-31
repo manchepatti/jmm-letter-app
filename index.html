@@ -13,7 +13,7 @@
 
 <div class="app-container">
 
-  <!-- DASHBOARD -->
+  <!-- ================= DASHBOARD ================= -->
   <div id="dashboardView" class="view-page">
     <div class="dashboard-header">Dashboard</div>
     <div class="control-panel">
@@ -22,7 +22,7 @@
     </div>
   </div>
 
-  <!-- CREATE -->
+  <!-- ================= CREATE LETTER ================= -->
   <div id="createLetterView" class="view-page hidden-view">
     <div class="dashboard-header">Create Letter</div>
 
@@ -54,7 +54,23 @@
     </div>
   </div>
 
-  <!-- PREVIEW -->
+  <!-- ================= SETTINGS ================= -->
+  <div id="settingsView" class="view-page hidden-view">
+    <div class="dashboard-header">Settings</div>
+
+    <div class="control-panel">
+      <h3>Signatories</h3>
+
+      <textarea id="signatoryInput" rows="6"
+        placeholder="अध्यक्ष | श्री. असरफ सोलकर"></textarea>
+
+      <button id="saveSettingsBtn" class="primary-btn">
+        Save Settings
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= PREVIEW ================= -->
   <div id="previewView" class="view-page hidden-view">
 
     <div class="preview-toolbar">
@@ -77,9 +93,8 @@
           <div class="lh-line"></div>
         </div>
 
-        <!-- LETTER BODY -->
+        <!-- BODY -->
         <div class="letter-body">
-
           <div class="meta">
             <div><b>Ref:</b> <span id="refText"></span></div>
             <div><b>Date:</b> <span id="dateText"></span></div>
@@ -96,7 +111,6 @@
           </div>
 
           <div class="matter-block" id="letterBody"></div>
-
         </div>
 
         <!-- SIGNATORY -->
@@ -114,10 +128,11 @@
 
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- ================= BOTTOM NAV ================= -->
 <div class="bottom-nav">
-  <button data-target="dashboardView">Dashboard</button>
-  <button data-target="createLetterView">New</button>
+  <button data-target="dashboardView">🏠 Dashboard</button>
+  <button data-target="createLetterView">➕ New</button>
+  <button data-target="settingsView">⚙️ Settings</button>
 </div>
 
 <script src="script.js"></script>
