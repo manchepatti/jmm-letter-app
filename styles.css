@@ -80,7 +80,7 @@ input, textarea, select {
 /* ===== LETTER ===== */
 .line { height: 3px; background: #2e7d32; margin: 6px 0; }
 .letterhead { text-align: center; margin-bottom: 20px; }
-.body { font-size: 14.5px; line-height: 1.7; }
+.body { font-size: 10.5px; line-height: 1.5; }
 .meta { display: flex; justify-content: space-between; margin-bottom: 20px; }
 .subject { margin: 20px 0; font-weight: 600; }
 .matter { white-space: pre-line; }
